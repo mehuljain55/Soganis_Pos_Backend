@@ -93,14 +93,5 @@ public class Billing {
 
     public void setFinal_amount(int final_amount) {
         this.final_amount = final_amount;
-    }
-
-   
-
-    
-  
-   
-
-    
-    
+    }  
 }

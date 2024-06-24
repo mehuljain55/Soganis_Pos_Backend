@@ -1,11 +1,9 @@
 package com.Soganis.Service;
 
-import com.Soganis.Entity.Items;
 import com.Soganis.Entity.User;
 import com.Soganis.Repository.ItemsRepository;
 import org.springframework.stereotype.Service;
 import com.Soganis.Repository.UserRepository;
-import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 
