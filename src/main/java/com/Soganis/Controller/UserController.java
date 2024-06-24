@@ -8,7 +8,6 @@ import com.Soganis.Service.ItemService;
 import com.Soganis.Service.UserService;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -64,6 +63,7 @@ public class UserController {
             return ResponseEntity.notFound().build();
         }
     }
+
 
     @GetMapping("/getBill/{bill_no}")
     public ResponseEntity<Billing> getBill(@PathVariable int bill_no) {
