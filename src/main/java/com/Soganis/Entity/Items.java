@@ -27,9 +27,6 @@ public class Items {
     String itemCategory;
     String sellPrice;
     String itemBarcodeID;
-    @ManyToOne
-    @JoinColumn(name = "bill_no")
-    private Billing billing;
     String price;
     int quantity;
 
@@ -139,5 +136,7 @@ public class Items {
     public void setQuantity(int quantity) {
         this.quantity = quantity;
     }
+    
+    
 
 }

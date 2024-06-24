@@ -2,25 +2,34 @@ package com.Soganis.Entity;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
+import java.util.Date;
 import java.util.List;
 
-
 @Entity
-@Table(name="billing")
+@Table(name = "billing")
 public class Billing {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     int billNo;
     String userId;
+     @Temporal(TemporalType.DATE)
+    private Date bill_date;
     String customerName;
     String customerMobileNo;
+
     int item_count;
+   
     @OneToMany(mappedBy = "billing", cascade = CascadeType.ALL)
     private List<BillingModel> bill;
-    double final_amount;
+    int final_amount;
 
     public int getBillNo() {
         return billNo;
@@ -28,6 +37,22 @@ public class Billing {
 
     public void setBillNo(int billNo) {
         this.billNo = billNo;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public Date getBill_date() {
+        return bill_date;
+    }
+
+    public void setBill_date(Date bill_date) {
+        this.bill_date = bill_date;
     }
 
     public String getCustomerName() {
@@ -62,12 +87,20 @@ public class Billing {
         this.bill = bill;
     }
 
-    public double getFinal_amount() {
+    public int getFinal_amount() {
         return final_amount;
     }
 
-    public void setFinal_amount(double final_amount) {
+    public void setFinal_amount(int final_amount) {
         this.final_amount = final_amount;
     }
 
+   
+
+    
+  
+   
+
+    
+    
 }
