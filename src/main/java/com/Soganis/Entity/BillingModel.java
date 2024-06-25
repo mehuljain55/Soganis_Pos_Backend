@@ -23,6 +23,7 @@ public class BillingModel {
    private String itemBarcodeID;
    private String itemType;
    private String itemColor;
+   private String description;
    
     @Temporal(TemporalType.DATE)
     private Date bill_date;
@@ -34,7 +35,7 @@ public class BillingModel {
    private Billing billing;
    private int  sellPrice;
    private int quantity;
-   private  int total_amount=quantity*sellPrice;
+   private  int total_amount;
 
     public BillingModel() {
     }
@@ -66,6 +67,16 @@ public class BillingModel {
     public void setItemBarcodeID(String itemBarcodeID) {
         this.itemBarcodeID = itemBarcodeID;
     }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+    
+    
 
     public String getItemType() {
         return itemType;
