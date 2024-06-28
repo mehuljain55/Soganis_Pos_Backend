@@ -13,29 +13,29 @@ import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import java.util.Date;
 
-
 @Entity
-@Table(name="billing_tab")
+@Table(name = "billing_tab")
 public class BillingModel {
-   @Id
-   @GeneratedValue(strategy= GenerationType.AUTO)        
-   int sno;
-   private String itemBarcodeID;
-   private String itemType;
-   private String itemColor;
-   private String description;
-   
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    int sno;
+    private String itemBarcodeID;
+    private String itemType;
+    private String itemColor;
+    private String description;
+    
     @Temporal(TemporalType.DATE)
     private Date bill_date;
-   private String itemSize;
-   private String itemCategory;
-   @ManyToOne(fetch=FetchType.LAZY)
-   @JoinColumn(name = "bill_no")
-   @JsonIgnore  
-   private Billing billing;
-   private int  sellPrice;
-   private int quantity;
-   private  int total_amount;
+    private String itemSize;
+    private String itemCategory;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "bill_no")
+    @JsonIgnore
+    private Billing billing;
+    private int sellPrice;
+    private int quantity;
+    private int total_amount;
 
     public BillingModel() {
     }
@@ -75,8 +75,6 @@ public class BillingModel {
     public void setDescription(String description) {
         this.description = description;
     }
-    
-    
 
     public String getItemType() {
         return itemType;
@@ -137,8 +135,6 @@ public class BillingModel {
     public void setBill_date(Date bill_date) {
         this.bill_date = bill_date;
     }
-    
-    
 
     public void setQuantity(int quantity) {
         this.quantity = quantity;
@@ -154,14 +150,7 @@ public class BillingModel {
 
     @Override
     public String toString() {
-        return "BillingModel{" + "sno=" + sno + ", itemBarcodeID=" + itemBarcodeID + ", itemType=" + itemType + ", itemColor=" + itemColor + ", itemSize=" + itemSize + ", itemCategory=" + itemCategory  + ", sellPrice=" + sellPrice + ", quantity=" + quantity + ", total_amount=" + total_amount + '}';
+        return "BillingModel{" + "sno=" + sno + ", itemBarcodeID=" + itemBarcodeID + ", itemType=" + itemType + ", itemColor=" + itemColor + ", itemSize=" + itemSize + ", itemCategory=" + itemCategory + ", sellPrice=" + sellPrice + ", quantity=" + quantity + ", total_amount=" + total_amount + '}';
     }
 
-
-    
-    
-
-   
-    
-    
 }

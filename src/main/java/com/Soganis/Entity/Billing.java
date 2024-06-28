@@ -20,7 +20,7 @@ public class Billing {
     @GeneratedValue(strategy = GenerationType.AUTO)
     int billNo;
     String userId;
-     @Temporal(TemporalType.DATE)
+    @Temporal(TemporalType.DATE)
     private Date bill_date;
     String customerName;
     String customerMobileNo;

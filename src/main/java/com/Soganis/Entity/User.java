@@ -14,6 +14,8 @@ public class User {
    private String sname;
    private String mobile_no;
    private String password;
+   private int monthly_salary;
+   private int payable_balance;
 
     public String getUserId() {
         return userId;
@@ -46,9 +48,27 @@ public class User {
     public void setPassword(String password) {
         this.password = password;
     }
+
+    public int getMonthly_salary() {
+        return monthly_salary;
+    }
+
+    public void setMonthly_salary(int monthly_salary) {
+        this.monthly_salary = monthly_salary;
+    }
+
+    public int getPayable_balance() {
+        return payable_balance;
+    }
+
+    public void setPayable_balance(int payable_balance) {
+        this.payable_balance = payable_balance;
+    }
+
     
     
-   
+    
+    
    
     
 }

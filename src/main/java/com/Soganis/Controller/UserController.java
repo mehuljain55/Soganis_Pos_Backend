@@ -4,6 +4,8 @@ import com.Soganis.Entity.Billing;
 import com.Soganis.Entity.BillingModel;
 import com.Soganis.Entity.Items;
 import com.Soganis.Entity.User;
+import com.Soganis.Entity.UserCashCollection;
+import com.Soganis.Entity.User_Salary;
 import com.Soganis.Service.ItemService;
 import com.Soganis.Service.UserService;
 import java.awt.print.PrinterJob;
@@ -46,7 +48,6 @@ public class UserController {
     public ResponseEntity<User> getUserInfo(@RequestBody User userRequest) {
         System.out.println("User controller accessed");
 
-        
         String userid = userRequest.getUserId();
         User user = service.getUserInfo(userid);
 
@@ -61,7 +62,7 @@ public class UserController {
 
     @GetMapping("/getAllItems")
     public ResponseEntity<List<Items>> getAllItems(@RequestParam(required = false) String searchTerm,
-                                                   @RequestParam(defaultValue = "20") int maxResults) {
+            @RequestParam(defaultValue = "20") int maxResults) {
         List<Items> items = itemService.getAllItems(searchTerm, maxResults);
         if (!items.isEmpty()) {
             return ResponseEntity.ok(items);
@@ -97,6 +98,75 @@ public class UserController {
         }
     }
 
+    @GetMapping("/getTodayUserCashCollection")
+    public ResponseEntity<Integer> getTodayUserCashCollection(@RequestParam("userId") String userId) {
+
+        int todaysCollection = itemService.getTodaysCollectionByUser(userId, new Date());
+
+        if (todaysCollection >= 0) {
+
+            return ResponseEntity.ok(todaysCollection);
+        } else {
+            System.out.println("Data Not Found");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+    }
+
+    @GetMapping("/getUserList")
+    public ResponseEntity<List<User>> getUserList() {
+
+        List<User> user_info = service.getUserList();
+
+        if (user_info != null) {
+
+            return ResponseEntity.ok(user_info);
+        } else {
+            System.out.println("Data Not Found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+
+    @GetMapping("/getUserSalaryAmount")
+    public int getUserSalaryAmount(@RequestParam("userId") String userId,
+            @RequestParam("type") String type,
+            @RequestParam("hours") int hours) {
+
+        int amount = service.salaryDeduction(userId, type, hours);
+        System.out.println(amount);
+        return amount;
+    }
+
+    @PostMapping("/salary/update")
+    public ResponseEntity<String> generateBill(@RequestBody List<User_Salary> salaries) {
+
+        String status = "";
+        try {
+            System.out.println(salaries.size());
+            status = service.userSalaryUpdate(salaries);
+
+            return ResponseEntity.ok(status);
+        } catch (Exception e) {
+            e.printStackTrace();
+            status = "FAILED";
+            return ResponseEntity.ok(status);
+        }
+    }
+
+    @GetMapping("/getUserCashCollection")
+    public ResponseEntity<List<UserCashCollection>> getUserCashCollection() {
+
+        try {
+
+            List<UserCashCollection> userCashList = service.userCashCollectionReport();
+            return ResponseEntity.ok(userCashList);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+    }
+
     public String print_bill(int bill_no) {
         Billing bill = itemService.getBill(bill_no);
 
@@ -119,13 +189,13 @@ public class UserController {
             Map<String, Object> parameters = new HashMap<>();
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
             String bill_date = dateFormat.format(bill.getBill_date());
-            
+
             parameters.put("bill_no", bill.getBillNo());
             parameters.put("customer_name", bill.getCustomerName());
             parameters.put("mobile_no", bill.getCustomerMobileNo());
             parameters.put("date", bill_date);
             parameters.put("final_amount", bill.getFinal_amount());
-            
+
             JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(newBill);
             JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, parameters, dataSource);
             String destination = "C:\\Users\\mehul\\Desktop\\Invoice\\" + bill.getCustomerName() + "_" + bill.getBillNo() + ".pdf";
@@ -138,20 +208,6 @@ public class UserController {
 
         return "Success";
 
-    }
-
-    @GetMapping("/getTodayUserCashCollection")
-    public ResponseEntity<Integer> getTodayUserCashCollection(@RequestParam("userId") String userId) {
-
-        int todaysCollection = itemService.getTodaysCollectionByUser(userId, new Date());
-
-        if (todaysCollection >= 0) {
-
-            return ResponseEntity.ok(todaysCollection);
-        } else {
-            System.out.println("Data Not Found");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
     }
 
     public String printPDF(String filePath) {
@@ -177,7 +233,5 @@ public class UserController {
             return "Unexpected error: " + e.getMessage();
         }
     }
-    
-    
 
 }
