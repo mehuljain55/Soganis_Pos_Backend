@@ -5,6 +5,7 @@ import com.Soganis.Entity.BillingModel;
 import com.Soganis.Entity.Items;
 import com.Soganis.Entity.User;
 import com.Soganis.Entity.UserCashCollection;
+import com.Soganis.Entity.UserMonthlySalary;
 import com.Soganis.Entity.User_Salary;
 import com.Soganis.Service.ItemService;
 import com.Soganis.Service.UserService;
@@ -164,9 +165,38 @@ public class UserController {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
-
     }
+    
+    @GetMapping("/salary/generate")
+    public ResponseEntity<List<UserMonthlySalary>> generateUserMonthlySalary(@RequestParam("month_fy") String month_fy) {
 
+        try {
+
+            List<UserMonthlySalary> userMonthlySalary = service.generateUserMonthlySalaries(month_fy);
+            return ResponseEntity.ok(userMonthlySalary);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+    
+    @PostMapping("/salary/paid")
+    public ResponseEntity<String> salaryStatusUpdate(@RequestBody UserMonthlySalary usermonthlySalary) {
+
+        String status="";
+        try {
+            
+            status=service.userMonthlySalaryChangeStatus(usermonthlySalary);
+            return ResponseEntity.ok(status);
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            status="Failed";
+            return ResponseEntity.ok(status);
+        }
+    }
+    
     public String print_bill(int bill_no) {
         Billing bill = itemService.getBill(bill_no);
 
@@ -209,7 +239,7 @@ public class UserController {
         return "Success";
 
     }
-
+   
     public String printPDF(String filePath) {
         try {
 
