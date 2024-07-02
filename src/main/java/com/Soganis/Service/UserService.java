@@ -137,7 +137,7 @@ public class UserService {
             int salaryHalfDay = sumAmountsByType(salary_statement, "HALF_DAY");
             int salaryHourlyDeduction = sumAmountsByType(salary_statement, "HOURLY_DEDUCTION");
             int totalSalaryDeducted = absentSalaryDeduction + salaryHalfDay + salaryHourlyDeduction;
-            int totalAmount = user.getMonthly_salary() - totalSalaryDeducted - absentSalaryDeduction; // calcualting salaries
+            int totalAmount = user.getMonthly_salary() - totalSalaryDeducted - advanceSalary; // calcualting salaries
             salary.setUserId(user.getUserId());
             salary.setUser_name(user.getSname());
             salary.setMonth_fy(month_fy);
@@ -161,9 +161,31 @@ public class UserService {
             
             salaries.add(salary);
         }
-
         userMonthlySalaryRepository.saveAll(salaries);
         return salaries;
+    }
+    
+    public List<User_Salary> getUserSalaryStatement(String userId,String month_fy)
+    {
+        
+        List<User_Salary> salary_statement;
+       
+        String[] parts = month_fy.split(" ");
+        String monthString = parts[0];
+        int year = Integer.parseInt(parts[1]);
+        int month = convertMonthToInt(monthString);
+
+        try{
+           salary_statement=userSalaryRepo.findUserSalaryByYearMonth(userId, year, month);
+           return salary_statement;
+            
+            
+        }catch(Exception e)
+        {
+          e.printStackTrace();
+          return null;
+        }
+        
     }
 
     
@@ -190,5 +212,26 @@ public class UserService {
                 .mapToInt(User_Salary::getAmount)
                 .sum();
     }
+    
+    public  int convertMonthToInt(String month) {
+        switch(month.toUpperCase()) {
+            case "JANUARY": return 1;
+            case "FEBRUARY": return 2;
+            case "MARCH": return 3;
+            case "APRIL": return 4;
+            case "MAY": return 5;
+            case "JUNE": return 6;
+            case "JULY": return 7;
+            case "AUGUST": return 8;
+            case "SEPTEMBER": return 9;
+            case "OCTOBER": return 10;
+            case "NOVEMBER": return 11;
+            case "DECEMBER": return 12;
+            default: throw new IllegalArgumentException("Invalid month: " + month);
+        }
+    }
+    
+    
+    
 
 }

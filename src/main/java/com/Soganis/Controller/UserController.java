@@ -197,6 +197,21 @@ public class UserController {
         }
     }
     
+    @GetMapping("/salary/user_salary_statement")
+    public ResponseEntity<List<User_Salary>> generateUserSalaryStatement(@RequestParam("userId") String userId,
+                                                                         @RequestParam("month_fy") String month_fy) {
+
+        try {
+
+            List<User_Salary> userSalaryStatement = service.getUserSalaryStatement(userId, month_fy);
+            return ResponseEntity.ok(userSalaryStatement);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+      
     public String print_bill(int bill_no) {
         Billing bill = itemService.getBill(bill_no);
 
