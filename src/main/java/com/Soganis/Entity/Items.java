@@ -4,32 +4,34 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 
-@Entity
-@Table(name = "item")
-@SequenceGenerator(name = "item_sequence", sequenceName = "item_sequence", initialValue = 5860, allocationSize = 1)
-public class Items {
 
+@Entity
+@Table(name="item")
+@SequenceGenerator(name="item_sequence", sequenceName="item_sequence", initialValue=6500, allocationSize=1)
+
+public class Items {
+    
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "item_sequence")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator="item_sequence") 
     int sno;
     String itemCode;
-    String id;
     String itemName;
     String itemType;
     String itemTypeID;
     String itemColor;
     String itemSize;
     String itemCategory;
-    String sellPrice;
     String itemBarcodeID;
     String price;
     int quantity;
-
+    String schoolCode;
+    String itemTypeCode;
+    String group_id;
+    
+    
     public Items() {
     }
 
@@ -49,14 +51,7 @@ public class Items {
         this.itemCode = itemCode;
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
+     
     public String getItemType() {
         return itemType;
     }
@@ -105,13 +100,7 @@ public class Items {
         this.itemTypeID = itemTypeID;
     }
 
-    public String getSellPrice() {
-        return sellPrice;
-    }
-
-    public void setSellPrice(String sellPrice) {
-        this.sellPrice = sellPrice;
-    }
+  
 
     public String getItemBarcodeID() {
         return itemBarcodeID;
@@ -136,7 +125,34 @@ public class Items {
     public void setQuantity(int quantity) {
         this.quantity = quantity;
     }
-    
-    
 
+    public String getSchoolCode() {
+        return schoolCode;
+    }
+
+    public void setSchoolCode(String schoolCode) {
+        this.schoolCode = schoolCode;
+    }
+
+    public String getItemTypeCode() {
+        return itemTypeCode;
+    }
+
+    public void setItemTypeCode(String itemTypeCode) {
+        this.itemTypeCode = itemTypeCode;
+    }
+
+    public String getGroup_id() {
+        return group_id;
+    }
+
+    public void setGroup_id(String group_id) {
+        this.group_id = group_id;
+    }
+    
+    
+    
+ 
+    
+    
 }

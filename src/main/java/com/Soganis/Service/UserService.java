@@ -1,6 +1,7 @@
 package com.Soganis.Service;
 
 import com.Soganis.Entity.Billing;
+import com.Soganis.Entity.Items;
 import com.Soganis.Entity.User;
 import com.Soganis.Entity.UserCashCollection;
 import com.Soganis.Entity.UserMonthlySalary;
@@ -14,11 +15,9 @@ import org.springframework.stereotype.Service;
 import com.Soganis.Repository.UserRepository;
 import com.Soganis.Repository.UserSalaryRepository;
 import java.time.Month;
-import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -145,93 +144,128 @@ public class UserService {
             salary.setAdvanceSalary(advanceSalary);
             salary.setFinalAmount(totalAmount);
             salary.setMonthlySalary(user.getMonthly_salary());
-           
-            UserMonthlySalaryId id=new UserMonthlySalaryId(user.getUserId(),month_fy);
-            System.out.println("Id: "+id);
-            Optional<UserMonthlySalary> opt=userMonthlySalaryRepository.findById(id);
-            if(opt.isPresent())
-            {
-               UserMonthlySalary userMonthlySalary=opt.get();
-               salary.setStatus(userMonthlySalary.getStatus());
+
+            UserMonthlySalaryId id = new UserMonthlySalaryId(user.getUserId(), month_fy);
+            System.out.println("Id: " + id);
+            Optional<UserMonthlySalary> opt = userMonthlySalaryRepository.findById(id);
+            if (opt.isPresent()) {
+                UserMonthlySalary userMonthlySalary = opt.get();
+                salary.setStatus(userMonthlySalary.getStatus());
+            } else {
+                salary.setStatus("PENDING");
             }
-            
-            else{
-            salary.setStatus("PENDING");
-            }
-            
+
             salaries.add(salary);
         }
         userMonthlySalaryRepository.saveAll(salaries);
         return salaries;
     }
-    
-    public List<User_Salary> getUserSalaryStatement(String userId,String month_fy)
-    {
-        
+
+    public List<User_Salary> getUserSalaryStatement(String userId, String month_fy) {
+
         List<User_Salary> salary_statement;
-       
+
         String[] parts = month_fy.split(" ");
         String monthString = parts[0];
         int year = Integer.parseInt(parts[1]);
         int month = convertMonthToInt(monthString);
 
-        try{
-           salary_statement=userSalaryRepo.findUserSalaryByYearMonth(userId, year, month);
-           return salary_statement;
-            
-            
-        }catch(Exception e)
-        {
-          e.printStackTrace();
-          return null;
+        try {
+            salary_statement = userSalaryRepo.findUserSalaryByYearMonth(userId, year, month);
+            return salary_statement;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
-        
+
     }
 
-    
-    public String userMonthlySalaryChangeStatus(UserMonthlySalary salary)
-    {
-         try{
-             System.out.println(salary);
-             salary.setStatus("PAID");
-             userMonthlySalaryRepository.save(salary);
-             return "Salary updated";
-         
-         }catch(Exception e)
-         {
+    public String userMonthlySalaryChangeStatus(UserMonthlySalary salary) {
+        try {
+            System.out.println(salary);
+            salary.setStatus("PAID");
+            userMonthlySalaryRepository.save(salary);
+            return "Salary updated";
+
+        } catch (Exception e) {
             e.printStackTrace();
             return "Unable to update status";
-         }
+        }
     }
-            
-    
-    
+
     public int sumAmountsByType(List<User_Salary> salaries, String type) {
         return salaries.stream()
                 .filter(salary -> type.equals(salary.getType()))
                 .mapToInt(User_Salary::getAmount)
                 .sum();
     }
-    
-    public  int convertMonthToInt(String month) {
-        switch(month.toUpperCase()) {
-            case "JANUARY": return 1;
-            case "FEBRUARY": return 2;
-            case "MARCH": return 3;
-            case "APRIL": return 4;
-            case "MAY": return 5;
-            case "JUNE": return 6;
-            case "JULY": return 7;
-            case "AUGUST": return 8;
-            case "SEPTEMBER": return 9;
-            case "OCTOBER": return 10;
-            case "NOVEMBER": return 11;
-            case "DECEMBER": return 12;
-            default: throw new IllegalArgumentException("Invalid month: " + month);
+
+    public int convertMonthToInt(String month) {
+        switch (month.toUpperCase()) {
+            case "JANUARY":
+                return 1;
+            case "FEBRUARY":
+                return 2;
+            case "MARCH":
+                return 3;
+            case "APRIL":
+                return 4;
+            case "MAY":
+                return 5;
+            case "JUNE":
+                return 6;
+            case "JULY":
+                return 7;
+            case "AUGUST":
+                return 8;
+            case "SEPTEMBER":
+                return 9;
+            case "OCTOBER":
+                return 10;
+            case "NOVEMBER":
+                return 11;
+            case "DECEMBER":
+                return 12;
+            default:
+                throw new IllegalArgumentException("Invalid month: " + month);
         }
     }
+
+    public List<String> getSchoolList() {
+        List<String> lst = itemRepo.findDistinctItemCategories();
+        return lst;
+    }
+
+    public List<String> itemTypeList() {
+        List<String> lst = itemRepo.findDistinctItemTypes();
+        return lst;
+    }
+
+    public List<String> itemTypeList(String schoolName) {
+        List<String> lst = itemRepo.findDistinctItemTypesByScool(schoolName);
+        return lst;
+    }
+
+    public List<Items> itemListBySchool(String schoolCode) {
+        List<Items> lst = itemRepo.findItemsBySchool(schoolCode);
+        return lst;
+
+    }
     
-    
+        public List<Items> itemListByItemType(String itemType) {
+        List<Items> lst = itemRepo.findItemsByItemType(itemType);
+        return lst;
+
+    }
+        
+     public List<Items> itemListBySchoolAndType(String itemCategory,String itemType) {
+        List<Items> lst = itemRepo.findItemsBySchoolAndType(itemCategory, itemType);
+        return lst;
+
+    }
+     
+   
     
 
 }

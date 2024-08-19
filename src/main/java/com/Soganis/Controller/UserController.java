@@ -90,8 +90,8 @@ public class UserController {
         try {
             Billing createBill = itemService.saveBilling(bill);
             createBill.setBill(bill.getBill());
-            String status = print_bill(createBill.getBillNo());
-            System.out.println(status);
+          //  String status = print_bill(createBill.getBillNo());
+        //    System.out.println(status);
             return ResponseEntity.ok(createBill);
         } catch (Exception e) {
             e.printStackTrace();
@@ -211,6 +211,95 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
+    
+      @GetMapping("/filter/getSchool")
+    public ResponseEntity<List<String>> getSchoolName() {
+
+        try {
+
+            List<String> schoolList = service.getSchoolList();
+            return ResponseEntity.ok(schoolList);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+    
+     @GetMapping("/filter/item_type")
+    public ResponseEntity<List<String>> itemType() {
+
+        try {
+
+            List<String> items = service.itemTypeList();
+            return ResponseEntity.ok(items);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+    
+     @GetMapping("/filter/school/item_type")
+    public ResponseEntity<List<String>> itemType(@RequestParam("schoolCode") String schoolCode) {
+
+        try {
+
+            List<String> items = service.itemTypeList(schoolCode);
+            return ResponseEntity.ok(items);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+    
+    @GetMapping("/filter/item_list_school_code")
+    public ResponseEntity<List<Items>> itemListBySchoolCode(@RequestParam("schoolCode") String schoolCode) {
+
+        try {
+
+            List<Items> items=service.itemListBySchool(schoolCode);
+            return ResponseEntity.ok(items);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+    
+     @GetMapping("/filter/item_list_type")
+    public ResponseEntity<List<Items>> itemListByItemType(@RequestParam("itemType") String itemType) {
+
+        try {
+
+            List<Items> items=service.itemListByItemType(itemType);
+            return ResponseEntity.ok(items);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+    
+    @GetMapping("/filter/item_category/item_type")
+    public ResponseEntity<List<Items>> itemListBySchoolAndType(@RequestParam("schoolCode") String schoolCode,
+                                                                @RequestParam("itemType") String itemType) {
+
+        try {
+
+            List<Items> items=service.itemListBySchoolAndType(schoolCode, itemType);
+            return ResponseEntity.ok(items);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+    
+    
+    
+    
       
     public String print_bill(int bill_no) {
         Billing bill = itemService.getBill(bill_no);
@@ -278,5 +367,7 @@ public class UserController {
             return "Unexpected error: " + e.getMessage();
         }
     }
+    
+    
 
 }

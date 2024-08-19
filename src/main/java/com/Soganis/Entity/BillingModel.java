@@ -34,6 +34,7 @@ public class BillingModel {
     @JsonIgnore
     private Billing billing;
     private int sellPrice;
+ 
     private int quantity;
     private int total_amount;
 
@@ -140,6 +141,9 @@ public class BillingModel {
         this.quantity = quantity;
     }
 
+    
+    
+
     public int getTotal_amount() {
         return total_amount;
     }
@@ -147,6 +151,8 @@ public class BillingModel {
     public void setTotal_amount(int total_amount) {
         this.total_amount = total_amount;
     }
+    
+    
 
     @Override
     public String toString() {

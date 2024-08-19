@@ -24,6 +24,9 @@ public class ItemService {
 
     @Autowired
     private BillingModelRepository billModelRepository;
+    
+    @Autowired
+    private InventoryService inventoryService;
 
     public List<Items> getAllItems() {
         List<Items> items = itemRepo.findAll();
@@ -48,6 +51,8 @@ public class ItemService {
                     billingModel.setBilling(savedBilling);
                     final_amount = final_amount + billingModel.getTotal_amount();
                     billingModel.setBill_date(new Date());
+                    String status=inventoryService.updateInventory(billingModel);
+                    System.out.println(status);
                     billModelRepository.save(billingModel);
                 }
                 savedBilling.setFinal_amount(final_amount);

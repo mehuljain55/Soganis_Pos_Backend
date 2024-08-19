@@ -24,6 +24,7 @@ public class Billing {
     private Date bill_date;
     String customerName;
     String customerMobileNo;
+    String paymentMode;
 
     int item_count;
    
@@ -94,4 +95,14 @@ public class Billing {
     public void setFinal_amount(int final_amount) {
         this.final_amount = final_amount;
     }  
+
+    public String getPaymentMode() {
+        return paymentMode;
+    }
+
+    public void setPaymentMode(String paymentMode) {
+        this.paymentMode = paymentMode;
+    }
+    
+    
 }
