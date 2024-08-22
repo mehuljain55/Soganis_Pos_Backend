@@ -2,11 +2,14 @@ package com.Soganis.Controller;
 
 import com.Soganis.Entity.Billing;
 import com.Soganis.Entity.BillingModel;
+import com.Soganis.Entity.CustomerOrderBook;
 import com.Soganis.Entity.Items;
+import com.Soganis.Entity.PurchaseOrderBook;
 import com.Soganis.Entity.User;
 import com.Soganis.Entity.UserCashCollection;
 import com.Soganis.Entity.UserMonthlySalary;
 import com.Soganis.Entity.User_Salary;
+import com.Soganis.Service.InventoryService;
 import com.Soganis.Service.ItemService;
 import com.Soganis.Service.UserService;
 import java.awt.print.PrinterJob;
@@ -44,6 +47,9 @@ public class UserController {
 
     @Autowired
     private ItemService itemService;
+    
+    @Autowired
+    private InventoryService inventoryService;
 
     @PostMapping("/login")
     public ResponseEntity<User> getUserInfo(@RequestBody User userRequest) {
@@ -90,8 +96,8 @@ public class UserController {
         try {
             Billing createBill = itemService.saveBilling(bill);
             createBill.setBill(bill.getBill());
-          //  String status = print_bill(createBill.getBillNo());
-        //    System.out.println(status);
+              String status = print_bill(createBill.getBillNo());
+                System.out.println(status);
             return ResponseEntity.ok(createBill);
         } catch (Exception e) {
             e.printStackTrace();
@@ -166,7 +172,7 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
-    
+
     @GetMapping("/salary/generate")
     public ResponseEntity<List<UserMonthlySalary>> generateUserMonthlySalary(@RequestParam("month_fy") String month_fy) {
 
@@ -180,26 +186,26 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
-    
+
     @PostMapping("/salary/paid")
     public ResponseEntity<String> salaryStatusUpdate(@RequestBody UserMonthlySalary usermonthlySalary) {
 
-        String status="";
+        String status = "";
         try {
-            
-            status=service.userMonthlySalaryChangeStatus(usermonthlySalary);
+
+            status = service.userMonthlySalaryChangeStatus(usermonthlySalary);
             return ResponseEntity.ok(status);
-            
+
         } catch (Exception e) {
             e.printStackTrace();
-            status="Failed";
+            status = "Failed";
             return ResponseEntity.ok(status);
         }
     }
-    
+
     @GetMapping("/salary/user_salary_statement")
     public ResponseEntity<List<User_Salary>> generateUserSalaryStatement(@RequestParam("userId") String userId,
-                                                                         @RequestParam("month_fy") String month_fy) {
+            @RequestParam("month_fy") String month_fy) {
 
         try {
 
@@ -211,8 +217,8 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
-    
-      @GetMapping("/filter/getSchool")
+
+    @GetMapping("/filter/getSchool")
     public ResponseEntity<List<String>> getSchoolName() {
 
         try {
@@ -225,8 +231,8 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
-    
-     @GetMapping("/filter/item_type")
+
+    @GetMapping("/filter/item_type")
     public ResponseEntity<List<String>> itemType() {
 
         try {
@@ -239,8 +245,8 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
-    
-     @GetMapping("/filter/school/item_type")
+
+    @GetMapping("/filter/school/item_type")
     public ResponseEntity<List<String>> itemType(@RequestParam("schoolCode") String schoolCode) {
 
         try {
@@ -253,13 +259,13 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
-    
+
     @GetMapping("/filter/item_list_school_code")
     public ResponseEntity<List<Items>> itemListBySchoolCode(@RequestParam("schoolCode") String schoolCode) {
 
         try {
 
-            List<Items> items=service.itemListBySchool(schoolCode);
+            List<Items> items = service.itemListBySchool(schoolCode);
             return ResponseEntity.ok(items);
 
         } catch (Exception e) {
@@ -267,13 +273,13 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
-    
-     @GetMapping("/filter/item_list_type")
+
+    @GetMapping("/filter/item_list_type")
     public ResponseEntity<List<Items>> itemListByItemType(@RequestParam("itemType") String itemType) {
 
         try {
 
-            List<Items> items=service.itemListByItemType(itemType);
+            List<Items> items = service.itemListByItemType(itemType);
             return ResponseEntity.ok(items);
 
         } catch (Exception e) {
@@ -281,14 +287,14 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
-    
+
     @GetMapping("/filter/item_category/item_type")
     public ResponseEntity<List<Items>> itemListBySchoolAndType(@RequestParam("schoolCode") String schoolCode,
-                                                                @RequestParam("itemType") String itemType) {
+            @RequestParam("itemType") String itemType) {
 
         try {
 
-            List<Items> items=service.itemListBySchoolAndType(schoolCode, itemType);
+            List<Items> items = service.itemListBySchoolAndType(schoolCode, itemType);
             return ResponseEntity.ok(items);
 
         } catch (Exception e) {
@@ -296,11 +302,90 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
+
+    @PostMapping("/customer_order_details")
+    public ResponseEntity<String> customer_order_detail(@RequestBody CustomerOrderBook order) {
+        try {
+            String status = service.updateCustomerOrder(order);
+            return ResponseEntity.ok(status);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+    }
+    
+     @PostMapping("/view/customer_order_details")
+    public ResponseEntity<List<CustomerOrderBook>> customer_order_detail(@RequestParam("status") String status) {
+        try {
+            List<CustomerOrderBook> lst=service.customerOrderDetails(status);
+            return ResponseEntity.ok(lst);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+    }
+    
+    @PostMapping("/update/customer_order_details/delivered")
+    public ResponseEntity<String> updateOrderDetailDelivered(@RequestParam("orderId") int orderId) {
+        try {
+            String status=service.updateOrderDetailDelivered(orderId);
+            return ResponseEntity.ok(status);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+    }
+    
+    @PostMapping("/update/customer_order_details/cancelled")
+    public ResponseEntity<String> updateOrderDetailCancelled(@RequestParam("orderId") int orderId) {
+        try {
+            String status=service.updateOrderDetailCancelled(orderId);
+            return ResponseEntity.ok(status);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+    }
+    
+     @PostMapping("/create_order")
+    public ResponseEntity<String>  order_detail(@RequestParam("barcodedId") String barcodedId) {
+        try {
+            String status=inventoryService.generate_order(barcodedId);
+            return ResponseEntity.ok(status);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+    }
+    
+     @GetMapping("/view-order")
+    public ResponseEntity<List<PurchaseOrderBook>>  viewOrder() {
+        try {
+            List<PurchaseOrderBook>  order=inventoryService.view_order();
+            return ResponseEntity.ok(order);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+    }
+    
+
+        @PostMapping("/generate_order")
+    public ResponseEntity<String>  generateOrder(@RequestBody List<PurchaseOrderBook> orders) {
+        try {
+            String status=inventoryService.generate_order("454");
+            return ResponseEntity.ok(status);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+    }
+
+  
+
     
     
     
-    
-      
     public String print_bill(int bill_no) {
         Billing bill = itemService.getBill(bill_no);
 
@@ -334,7 +419,7 @@ public class UserController {
             JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, parameters, dataSource);
             String destination = "C:\\Users\\mehul\\Desktop\\Invoice\\" + bill.getCustomerName() + "_" + bill.getBillNo() + ".pdf";
             JasperExportManager.exportReportToPdfFile(jasperPrint, destination);
-            printPDF(destination);
+            //printPDF(destination);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -343,7 +428,7 @@ public class UserController {
         return "Success";
 
     }
-   
+
     public String printPDF(String filePath) {
         try {
 
@@ -367,7 +452,5 @@ public class UserController {
             return "Unexpected error: " + e.getMessage();
         }
     }
-    
-    
 
 }

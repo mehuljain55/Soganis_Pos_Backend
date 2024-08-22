@@ -1,8 +1,11 @@
 package com.Soganis.Service;
 
 import com.Soganis.Entity.BillingModel;
+import com.Soganis.Entity.Items;
 import com.Soganis.Model.SalesReportModel;
 import com.Soganis.Repository.BillingModelRepository;
+import com.Soganis.Repository.ItemsRepository;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,6 +17,9 @@ public class SalesReportService {
 
     @Autowired
     private BillingModelRepository billModelRepo;
+    
+      @Autowired
+    private ItemsRepository itemRepo;
 
     public List<SalesReportModel> getSaleBySchoolAndDate(String schoolCode, Date startDate, Date endDate) {
         List<BillingModel> billing = billModelRepo.findBySchoolAndDateRange(schoolCode, startDate, endDate);
@@ -63,6 +69,7 @@ public class SalesReportService {
     }
 
     public List<SalesReportModel> billingSummary(List<BillingModel> billingModels) {
+        List<SalesReportModel> salesReportListFinal=new ArrayList<>();
         List<SalesReportModel> salesReportList = billingModels.stream()
                 .collect(Collectors.groupingBy(
                         BillingModel::getItemBarcodeID,
@@ -94,8 +101,18 @@ public class SalesReportService {
                 .values()
                 .stream()
                 .collect(Collectors.toList());
+        
+        for(SalesReportModel sales:salesReportList)
+        {
+         Items item=itemRepo.getItemByItemBarcodeID(sales.getItemBarcodeID());
+        String description=item.getItemCategory()+" "+item.getItemType()+" "+item.getItemColor();
+        
+         sales.setDescription(item.getItemName());
+         salesReportListFinal.add(sales);
+            
+        }
 
-        return salesReportList;
+        return salesReportListFinal;
     }
 
 }

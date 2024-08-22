@@ -1,13 +1,16 @@
 package com.Soganis.Service;
 
 import com.Soganis.Entity.Billing;
+import com.Soganis.Entity.CustomerOrderBook;
 import com.Soganis.Entity.Items;
+import com.Soganis.Entity.Order;
 import com.Soganis.Entity.User;
 import com.Soganis.Entity.UserCashCollection;
 import com.Soganis.Entity.UserMonthlySalary;
 import com.Soganis.Entity.UserMonthlySalaryId;
 import com.Soganis.Entity.User_Salary;
 import com.Soganis.Repository.BillingRepository;
+import com.Soganis.Repository.CustomerOrderRepo;
 import com.Soganis.Repository.ItemsRepository;
 import com.Soganis.Repository.UserCashCollectionRepository;
 import com.Soganis.Repository.UserMonthlySalaryRepository;
@@ -41,6 +44,10 @@ public class UserService {
 
     @Autowired
     private UserMonthlySalaryRepository userMonthlySalaryRepository;
+    
+    @Autowired
+    private CustomerOrderRepo customerOrderRepo;
+    
 
     public User getUserInfo(String userId) {
         Optional<User> opt = userRepo.findById(userId);
@@ -66,6 +73,62 @@ public class UserService {
             return "Failed";
         }
     }
+    
+      public String updateCustomerOrder(CustomerOrderBook order) {
+        try {
+            // Ensure that each order in the list has a reference to the CustomerOrderBook
+            for (Order orderItem : order.getOrders()) {
+                orderItem.setCustomerOrderBook(order);
+            }
+            int totalAmount=order.getTotalAmount();
+            int amount_due=totalAmount-order.getAdvancePayment();
+            order.setAmount_due(amount_due);
+            order.setStatus("PENDING");
+            customerOrderRepo.save(order);
+            return "Success";
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Failed";
+        }
+    }
+      
+      public List<CustomerOrderBook> customerOrderDetails(String status)
+      {
+         List<CustomerOrderBook> lst=customerOrderRepo.findByStatus(status);
+         return lst;
+      }
+      
+       public String updateOrderDetailDelivered(int orderId)
+      {
+         Optional<CustomerOrderBook> opt=customerOrderRepo.findById(orderId);
+         if(opt.isPresent())
+         {
+          CustomerOrderBook order=opt.get();
+          order.setStatus("DELIVERED");
+          customerOrderRepo.save(order);
+          return "success";
+         }
+         else{
+           return "failed";
+         }
+      }
+
+    public String updateOrderDetailCancelled(int orderId)
+      {
+         Optional<CustomerOrderBook> opt=customerOrderRepo.findById(orderId);
+         if(opt.isPresent())
+         {
+          CustomerOrderBook order=opt.get();
+          order.setStatus("CANCELLED");
+          customerOrderRepo.save(order);
+          return "success";
+         }
+         else{
+           return "failed";
+         }
+      }
+
+       
 
     public int salaryDeduction(String userId, String type, int hours) {
 
@@ -264,6 +327,8 @@ public class UserService {
         return lst;
 
     }
+     
+     
      
    
     

@@ -31,7 +31,7 @@
 			<staticText>
 				<reportElement x="374" y="0" width="200" height="64" uuid="c8a6d69d-57b2-46f4-b5d8-a29467bb3bc3"/>
 				<textElement textAlignment="Left">
-					<font fontName="Arial" size="15" isBold="false"/>
+					<font fontName="Dubai&#xD;&#xA;Dubai&#xD;&#xA;" size="15" isBold="false"/>
 				</textElement>
 				<text><![CDATA[UG 17, Trade Center, 18 South Tukoganj, Indore Ph: 0731-4957094, 9424851056
 ]]></text>
@@ -39,7 +39,7 @@
 			<staticText>
 				<reportElement x="374" y="64" width="200" height="22" uuid="4b65c361-5009-4e31-842f-41a6378f28de"/>
 				<textElement textAlignment="Left">
-					<font fontName="Arial" size="15" isUnderline="true"/>
+					<font fontName="Dubai&#xD;&#xA;" size="15" isUnderline="true"/>
 				</textElement>
 				<text><![CDATA[GSTIN: 23AFEPS1651L1ZD]]></text>
 			</staticText>
@@ -49,21 +49,21 @@
 			<staticText>
 				<reportElement x="0" y="120" width="570" height="20" uuid="ddfcb6a4-ecd5-4e2c-a6af-c00de8418400"/>
 				<textElement>
-					<font fontName="Arial" size="15"/>
+					<font fontName="Dubai&#xD;&#xA;" size="15"/>
 				</textElement>
 				<text><![CDATA[Composition Taxable Person Not Eligible To Collect Tax On Supplies]]></text>
 			</staticText>
 			<staticText>
 				<reportElement x="6" y="50" width="230" height="30" uuid="06e295f0-3cba-493c-b736-955b5b7e3eb9"/>
 				<textElement textAlignment="Center">
-					<font fontName="Arial" size="13"/>
+					<font fontName="Arial&#xD;&#xA;" size="13"/>
 				</textElement>
 				<text><![CDATA[SCHOOL UNIFORMS]]></text>
 			</staticText>
 			<staticText>
 				<reportElement x="220" y="90" width="110" height="24" uuid="bd71139f-516f-45f4-96e5-9f165fefb371"/>
 				<textElement>
-					<font fontName="Arial" size="18" isUnderline="true"/>
+					<font fontName="Arial&#xD;&#xA;" size="18" isUnderline="true"/>
 				</textElement>
 				<text><![CDATA[Bill of Supply]]></text>
 			</staticText>
