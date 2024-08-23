@@ -6,6 +6,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
@@ -14,10 +15,11 @@ import java.util.List;
 
 @Entity
 @Table(name = "billing")
+@SequenceGenerator(name = "billing_sequence", sequenceName = "billing_sequence", initialValue = 1, allocationSize = 1)
 public class Billing {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "billing_sequence")
     int billNo;
     String userId;
     @Temporal(TemporalType.DATE)

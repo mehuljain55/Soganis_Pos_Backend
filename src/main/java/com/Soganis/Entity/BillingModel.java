@@ -8,6 +8,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
@@ -15,16 +16,17 @@ import java.util.Date;
 
 @Entity
 @Table(name = "billing_tab")
+@SequenceGenerator(name = "billing_model_sequence", sequenceName = "billing_model_sequence", initialValue = 1, allocationSize = 1)
 public class BillingModel {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "billing_model_sequence")
     int sno;
     private String itemBarcodeID;
     private String itemType;
     private String itemColor;
     private String description;
-    
+
     @Temporal(TemporalType.DATE)
     private Date bill_date;
     private String itemSize;
@@ -34,7 +36,7 @@ public class BillingModel {
     @JsonIgnore
     private Billing billing;
     private int sellPrice;
- 
+
     private int quantity;
     private int total_amount;
 
@@ -141,9 +143,6 @@ public class BillingModel {
         this.quantity = quantity;
     }
 
-    
-    
-
     public int getTotal_amount() {
         return total_amount;
     }
@@ -151,8 +150,6 @@ public class BillingModel {
     public void setTotal_amount(int total_amount) {
         this.total_amount = total_amount;
     }
-    
-    
 
     @Override
     public String toString() {

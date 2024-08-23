@@ -39,6 +39,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.List;
+import java.util.Random;
+
 @RestController
 public class UserController {
 
@@ -370,18 +381,61 @@ public class UserController {
     }
     
 
-        @PostMapping("/generate_order")
-    public ResponseEntity<String>  generateOrder(@RequestBody List<PurchaseOrderBook> orders) {
+   @PostMapping("/generate_order")
+    public ResponseEntity<String> generateOrder(@RequestBody List<PurchaseOrderBook> orders) {
         try {
-            String status=inventoryService.generate_order("454");
-            return ResponseEntity.ok(status);
-        } catch (Exception e) {
+            // Define the file path
+            
+            Random random = new Random();
+        
+        // Generate a random number between 0 and 99
+        int randomNumber = random.nextInt(100);
+        
+        // Convert the number to a text string
+        String numberAsText = Integer.toString(randomNumber);
+        
+        // Print the result
+        System.out.println("Random number as text: " + numberAsText);
+            
+            String filePath = "C:\\Users\\mehul\\Desktop\\Invoice\\order_"+numberAsText+".xlsx";
+            String status=inventoryService.updateOrder(orders);
+
+            // Create a new workbook and a sheet
+            Workbook workbook = new XSSFWorkbook();
+            Sheet sheet = workbook.createSheet("Orders");
+
+            // Create header row
+            Row headerRow = sheet.createRow(0);
+            String[] headers = {"Description", "Size","Color",  "Quantity", "Item Type", "School"};
+            for (int i = 0; i < headers.length; i++) {
+                Cell cell = headerRow.createCell(i);
+                cell.setCellValue(headers[i]);
+            }
+
+            // Fill the sheet with order data
+            int rowNum = 1;
+            for (PurchaseOrderBook order : orders) {
+                Row row = sheet.createRow(rowNum++);
+                row.createCell(0).setCellValue(order.getDescription());
+                row.createCell(1).setCellValue(order.getSize());
+                row.createCell(3).setCellValue(order.getQuantity());
+                row.createCell(4).setCellValue(order.getItemType());
+                row.createCell(5).setCellValue(order.getSchool());
+              }
+
+            // Write the output to a file
+            try (FileOutputStream fileOut = new FileOutputStream(filePath)) {
+                workbook.write(fileOut);
+            }
+            workbook.close();
+
+            return ResponseEntity.ok("Excel file saved successfully!");
+
+        } catch (IOException e) {
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to save Excel file.");
         }
     }
-
-  
 
     
     

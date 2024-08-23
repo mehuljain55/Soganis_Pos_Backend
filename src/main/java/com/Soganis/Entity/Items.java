@@ -7,31 +7,29 @@ import jakarta.persistence.Id;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 
-
 @Entity
-@Table(name="item")
-@SequenceGenerator(name="item_sequence", sequenceName="item_sequence", initialValue=6500, allocationSize=1)
+@Table(name = "item")
+@SequenceGenerator(name = "item_sequence", sequenceName = "item_sequence", initialValue = 6500, allocationSize = 1)
 
 public class Items {
-    
+
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator="item_sequence") 
-    int sno;
-    String itemCode;
-    String itemName;
-    String itemType;
-    String itemTypeID;
-    String itemColor;
-    String itemSize;
-    String itemCategory;
-    String itemBarcodeID;
-    String price;
-    int quantity;
-    String schoolCode;
-    String itemTypeCode;
-    String group_id;
-    
-    
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "item_sequence")
+    private int sno;
+    private String itemCode;
+    private String itemName;
+    private String itemType;
+    private String itemTypeID;
+    private String itemColor;
+    private String itemSize;
+    private String itemCategory;
+    private String itemBarcodeID;
+    private String price;
+    private int quantity;
+    private String schoolCode;
+    private String itemTypeCode;
+    private String group_id;
+
     public Items() {
     }
 
@@ -51,7 +49,6 @@ public class Items {
         this.itemCode = itemCode;
     }
 
-     
     public String getItemType() {
         return itemType;
     }
@@ -100,8 +97,6 @@ public class Items {
         this.itemTypeID = itemTypeID;
     }
 
-  
-
     public String getItemBarcodeID() {
         return itemBarcodeID;
     }
@@ -149,10 +144,5 @@ public class Items {
     public void setGroup_id(String group_id) {
         this.group_id = group_id;
     }
-    
-    
-    
- 
-    
-    
+
 }

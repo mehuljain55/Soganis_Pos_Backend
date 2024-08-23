@@ -4,16 +4,21 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
+import java.util.Date;
 
 
 
 @Entity
 @Table(name="purshase_order_book")
+@SequenceGenerator(name = "purshase_order_sequence", sequenceName = "purshase_order_sequence", initialValue = 1, allocationSize = 1)
 public class PurchaseOrderBook {
  
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "purshase_order_sequence")
     private int orderId;
     private String barcodedId;
     private String description;
@@ -21,6 +26,8 @@ public class PurchaseOrderBook {
     private int currentStock;
     private int quantity;
     private String itemType;
+    @Temporal(TemporalType.DATE)
+    private Date date;
     private String school;
     private String status;
 
@@ -64,6 +71,16 @@ public class PurchaseOrderBook {
         this.quantity = quantity;
     }
 
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
+    }
+
+    
+    
     public String getItemType() {
         return itemType;
     }

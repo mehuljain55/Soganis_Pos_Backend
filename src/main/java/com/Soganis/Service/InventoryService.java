@@ -5,6 +5,7 @@ import com.Soganis.Entity.Items;
 import com.Soganis.Entity.PurchaseOrderBook;
 import com.Soganis.Repository.ItemsRepository;
 import com.Soganis.Repository.PurchaseOrderBookRepo;
+import java.util.Date;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -68,6 +69,7 @@ public class InventoryService {
             order.setBarcodedId(barcodedId);
             order.setItemType(item.getItemType());
             order.setSchool(item.getItemCategory());
+            order.setDate(new Date());
             order.setSize(item.getItemSize());
             order.setStatus("NOT GENERATED");
             order.setCurrentStock(currentStock);
@@ -82,8 +84,18 @@ public class InventoryService {
     
     public List<PurchaseOrderBook>  view_order()
     {
-      List<PurchaseOrderBook> lst=purchaseOrderRepo.findAll();
+      List<PurchaseOrderBook> lst=purchaseOrderRepo.findItemsWithStatusNotGenerated();
       return lst;
+    }
+    
+    public String updateOrder(List<PurchaseOrderBook> orders)
+    {
+      for(PurchaseOrderBook order:orders)
+      {
+        order.setStatus("GENERATED");
+        purchaseOrderRepo.save(order);
+      }
+      return "Success";
     }
 
 }
