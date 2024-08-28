@@ -113,28 +113,29 @@ public class ItemService {
         }
         return cash_collection;
     }
-    
-    public String stockReturn(int sno,String barcodedId)
-    {
-       Optional<BillingModel> opt=billModelRepository.findById(sno);
-       if(opt.isPresent())
-       {
-       BillingModel billModel=opt.get();
-       Billing bill=billRepo.getBillByNo(billModel.getBilling().getBillNo());
-       int finalAmount=bill.getFinal_amount()-billModel.getTotal_amount();
-       bill.setFinal_amount(finalAmount);
-       
-       
-       int quantity=billModel.getQuantity();
-       Items item=itemRepo.getItemByItemBarcodeID(barcodedId);
-       int  final_quantity=item.getQuantity()+quantity;
-       item.setQuantity(final_quantity);
-       itemRepo.save(item);
-       billModelRepository.deleteById(sno);
-       billRepo.save(bill);
-       return "Success";
-       }
-       return "Failed";
-    }
 
+    public String stockReturn(int sno, String barcodedId) {
+        try {
+            Optional<BillingModel> opt = billModelRepository.findById(sno);
+            if (opt.isPresent()) {
+                BillingModel billModel = opt.get();
+                Billing bill = billRepo.getBillByNo(billModel.getBilling().getBillNo());
+                int finalAmount = bill.getFinal_amount() - billModel.getTotal_amount();
+                bill.setFinal_amount(finalAmount);
+
+                int quantity = billModel.getQuantity();
+                Items item = itemRepo.getItemByItemBarcodeID(barcodedId);
+                int final_quantity = item.getQuantity() + quantity;
+                item.setQuantity(final_quantity);
+                itemRepo.save(item);
+                billModelRepository.deleteById(sno);
+                billRepo.save(bill);
+                return "Success";
+            }
+            return "Failed";
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "failed";
+        }
+    }
 }
