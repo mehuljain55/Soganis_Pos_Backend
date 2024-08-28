@@ -25,6 +25,7 @@ public class Items {
     private String itemCategory;
     private String itemBarcodeID;
     private String price;
+    private String wholeSalePrice;
     private int quantity;
     private String schoolCode;
     private String itemTypeCode;
@@ -144,5 +145,15 @@ public class Items {
     public void setGroup_id(String group_id) {
         this.group_id = group_id;
     }
+
+    public String getWholeSalePrice() {
+        return wholeSalePrice;
+    }
+
+    public void setWholeSalePrice(String wholeSalePrice) {
+        this.wholeSalePrice = wholeSalePrice;
+    }
+    
+    
 
 }

@@ -71,6 +71,7 @@ public class InventoryService {
             order.setSchool(item.getItemCategory());
             order.setDate(new Date());
             order.setSize(item.getItemSize());
+            order.setColor(item.getItemColor());
             order.setStatus("NOT GENERATED");
             order.setCurrentStock(currentStock);
             purchaseOrderRepo.save(order);

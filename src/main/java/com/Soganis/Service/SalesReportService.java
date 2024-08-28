@@ -95,6 +95,7 @@ public class SalesReportService {
                                         b.get().getSellPrice(),
                                         b.get().getQuantity(),
                                         b.get().getTotal_amount()
+                                       
                                 )
                         )
                 ))
@@ -108,6 +109,8 @@ public class SalesReportService {
         String description=item.getItemCategory()+" "+item.getItemType()+" "+item.getItemColor();
         
          sales.setDescription(item.getItemName());
+         sales.setItemCode(item.getItemCode());
+         sales.setItemSize(item.getItemSize());
          salesReportListFinal.add(sales);
             
         }

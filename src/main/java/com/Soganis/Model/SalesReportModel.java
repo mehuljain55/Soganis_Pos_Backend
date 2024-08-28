@@ -3,9 +3,13 @@ package com.Soganis.Model;
 public class SalesReportModel {
 
     private String itemBarcodeID;
+    private String itemCode;
+    
     private String description;
     private String itemType;
     private String itemColor;
+    private String itemSize;
+    
     private int sellPrice;    
     private int totalQuantity;
     private int totalAmount;
@@ -23,16 +27,20 @@ public class SalesReportModel {
     public SalesReportModel() {
     }
 
-    
-    
-    
-    
     public String getItemBarcodeID() {
         return itemBarcodeID;
     }
 
     public void setItemBarcodeID(String itemBarcodeID) {
         this.itemBarcodeID = itemBarcodeID;
+    }
+
+    public String getItemCode() {
+        return itemCode;
+    }
+
+    public void setItemCode(String itemCode) {
+        this.itemCode = itemCode;
     }
 
     public String getDescription() {
@@ -59,6 +67,16 @@ public class SalesReportModel {
         this.itemColor = itemColor;
     }
 
+    public String getItemSize() {
+        return itemSize;
+    }
+
+    public void setItemSize(String itemSize) {
+        this.itemSize = itemSize;
+    }
+    
+    
+    
     public int getSellPrice() {
         return sellPrice;
     }
@@ -83,6 +101,11 @@ public class SalesReportModel {
         this.totalAmount = totalAmount;
     }
 
+    
+    
+    
+    
+  
   
     
 

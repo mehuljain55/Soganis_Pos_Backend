@@ -39,7 +39,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -58,7 +57,7 @@ public class UserController {
 
     @Autowired
     private ItemService itemService;
-    
+
     @Autowired
     private InventoryService inventoryService;
 
@@ -107,14 +106,30 @@ public class UserController {
         try {
             Billing createBill = itemService.saveBilling(bill);
             createBill.setBill(bill.getBill());
-              String status = print_bill(createBill.getBillNo());
-                System.out.println(status);
+            String status = print_bill(createBill.getBillNo());
+            System.out.println(status);
             return ResponseEntity.ok(createBill);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
+    
+     @PostMapping("/intercompany/billRequest")
+    public ResponseEntity<Billing> generateInterCompanyBill(@RequestBody Billing bill) {
+        try {
+            Billing createBill = itemService.saveInterCompanyBilling(bill);
+            createBill.setBill(bill.getBill());
+            String status = print_bill(createBill.getBillNo());
+            System.out.println(status);
+            return ResponseEntity.ok(createBill);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+    }
+    
+    
 
     @GetMapping("/getTodayUserCashCollection")
     public ResponseEntity<Integer> getTodayUserCashCollection(@RequestParam("userId") String userId) {
@@ -324,122 +339,64 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
-    
-     @PostMapping("/view/customer_order_details")
+
+    @PostMapping("/view/customer_order_details")
     public ResponseEntity<List<CustomerOrderBook>> customer_order_detail(@RequestParam("status") String status) {
         try {
-            List<CustomerOrderBook> lst=service.customerOrderDetails(status);
+            List<CustomerOrderBook> lst = service.customerOrderDetails(status);
             return ResponseEntity.ok(lst);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
-    
+
     @PostMapping("/update/customer_order_details/delivered")
     public ResponseEntity<String> updateOrderDetailDelivered(@RequestParam("orderId") int orderId) {
         try {
-            String status=service.updateOrderDetailDelivered(orderId);
+            String status = service.updateOrderDetailDelivered(orderId);
             return ResponseEntity.ok(status);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
-    
+
     @PostMapping("/update/customer_order_details/cancelled")
     public ResponseEntity<String> updateOrderDetailCancelled(@RequestParam("orderId") int orderId) {
         try {
-            String status=service.updateOrderDetailCancelled(orderId);
+            String status = service.updateOrderDetailCancelled(orderId);
             return ResponseEntity.ok(status);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
-    
-     @PostMapping("/create_order")
-    public ResponseEntity<String>  order_detail(@RequestParam("barcodedId") String barcodedId) {
+
+    @PostMapping("/create_order")
+    public ResponseEntity<String> order_detail(@RequestParam("barcodedId") String barcodedId) {
         try {
-            String status=inventoryService.generate_order(barcodedId);
+            String status = inventoryService.generate_order(barcodedId);
             return ResponseEntity.ok(status);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
-    
-     @GetMapping("/view-order")
-    public ResponseEntity<List<PurchaseOrderBook>>  viewOrder() {
+
+    @GetMapping("/view-order")
+    public ResponseEntity<List<PurchaseOrderBook>> viewOrder() {
         try {
-            List<PurchaseOrderBook>  order=inventoryService.view_order();
+            List<PurchaseOrderBook> order = inventoryService.view_order();
             return ResponseEntity.ok(order);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
-    
 
-   @PostMapping("/generate_order")
-    public ResponseEntity<String> generateOrder(@RequestBody List<PurchaseOrderBook> orders) {
-        try {
-            // Define the file path
-            
-            Random random = new Random();
-        
-        // Generate a random number between 0 and 99
-        int randomNumber = random.nextInt(100);
-        
-        // Convert the number to a text string
-        String numberAsText = Integer.toString(randomNumber);
-        
-        // Print the result
-        System.out.println("Random number as text: " + numberAsText);
-            
-            String filePath = "C:\\Users\\mehul\\Desktop\\Invoice\\order_"+numberAsText+".xlsx";
-            String status=inventoryService.updateOrder(orders);
+  
 
-            // Create a new workbook and a sheet
-            Workbook workbook = new XSSFWorkbook();
-            Sheet sheet = workbook.createSheet("Orders");
-
-            // Create header row
-            Row headerRow = sheet.createRow(0);
-            String[] headers = {"Description", "Size","Color",  "Quantity", "Item Type", "School"};
-            for (int i = 0; i < headers.length; i++) {
-                Cell cell = headerRow.createCell(i);
-                cell.setCellValue(headers[i]);
-            }
-
-            // Fill the sheet with order data
-            int rowNum = 1;
-            for (PurchaseOrderBook order : orders) {
-                Row row = sheet.createRow(rowNum++);
-                row.createCell(0).setCellValue(order.getDescription());
-                row.createCell(1).setCellValue(order.getSize());
-                row.createCell(3).setCellValue(order.getQuantity());
-                row.createCell(4).setCellValue(order.getItemType());
-                row.createCell(5).setCellValue(order.getSchool());
-              }
-
-            // Write the output to a file
-            try (FileOutputStream fileOut = new FileOutputStream(filePath)) {
-                workbook.write(fileOut);
-            }
-            workbook.close();
-
-            return ResponseEntity.ok("Excel file saved successfully!");
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to save Excel file.");
-        }
-    }
-
-    
-    
-    
     public String print_bill(int bill_no) {
         Billing bill = itemService.getBill(bill_no);
 

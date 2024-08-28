@@ -23,6 +23,7 @@ public class PurchaseOrderBook {
     private String barcodedId;
     private String description;
     private String size;
+    private String color;
     private int currentStock;
     private int quantity;
     private String itemType;
@@ -128,6 +129,16 @@ public class PurchaseOrderBook {
     public void setBarcodedId(String barcodedId) {
         this.barcodedId = barcodedId;
     }
+
+    public String getColor() {
+        return color;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
+    }
+    
+    
     
     
     

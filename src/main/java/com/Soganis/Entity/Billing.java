@@ -19,7 +19,7 @@ import java.util.List;
 public class Billing {
 
     @Id
-   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "billing_sequence")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "billing_sequence")
     int billNo;
     String userId;
     @Temporal(TemporalType.DATE)
@@ -27,9 +27,11 @@ public class Billing {
     String customerName;
     String customerMobileNo;
     String paymentMode;
+    String schoolName;
+    String billType;
 
     int item_count;
-   
+
     @OneToMany(mappedBy = "billing", cascade = CascadeType.ALL)
     private List<BillingModel> bill;
     int final_amount;
@@ -96,7 +98,7 @@ public class Billing {
 
     public void setFinal_amount(int final_amount) {
         this.final_amount = final_amount;
-    }  
+    }
 
     public String getPaymentMode() {
         return paymentMode;
@@ -105,6 +107,24 @@ public class Billing {
     public void setPaymentMode(String paymentMode) {
         this.paymentMode = paymentMode;
     }
+
+    public String getBillType() {
+        return billType;
+    }
+
+    public void setBillType(String billType) {
+        this.billType = billType;
+    }
+
+    public String getSchoolName() {
+        return schoolName;
+    }
+
+    public void setSchoolName(String schoolName) {
+        this.schoolName = schoolName;
+    }
     
     
+    
+
 }

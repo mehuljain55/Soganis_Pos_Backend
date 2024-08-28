@@ -24,7 +24,7 @@ public class ItemService {
 
     @Autowired
     private BillingModelRepository billModelRepository;
-    
+
     @Autowired
     private InventoryService inventoryService;
 
@@ -44,6 +44,7 @@ public class ItemService {
         try {
             int final_amount = 0;
             billing.setBill_date(new Date());
+            billing.setBillType("Retail");
             Billing savedBilling = billRepo.save(billing);
 
             if (billing.getBill() != null) {
@@ -51,7 +52,7 @@ public class ItemService {
                     billingModel.setBilling(savedBilling);
                     final_amount = final_amount + billingModel.getTotal_amount();
                     billingModel.setBill_date(new Date());
-                    String status=inventoryService.updateInventory(billingModel);
+                    String status = inventoryService.updateInventory(billingModel);
                     System.out.println(status);
                     billModelRepository.save(billingModel);
                 }
@@ -64,7 +65,33 @@ public class ItemService {
             e.printStackTrace();
             return null;
         }
+    }
 
+    public Billing saveInterCompanyBilling(Billing billing) {
+        try {
+            int final_amount = 0;
+            billing.setBill_date(new Date());
+            billing.setBillType("Company");
+            Billing savedBilling = billRepo.save(billing);
+
+            if (billing.getBill() != null) {
+                for (BillingModel billingModel : billing.getBill()) {
+                    billingModel.setBilling(savedBilling);
+                    final_amount = final_amount + billingModel.getTotal_amount();
+                    billingModel.setBill_date(new Date());
+                    String status = inventoryService.updateInventory(billingModel);
+                    System.out.println(status);
+                    billModelRepository.save(billingModel);
+                }
+                savedBilling.setFinal_amount(final_amount);
+                billRepo.save(savedBilling);
+                savedBilling.setBill(billing.getBill());
+            }
+            return savedBilling;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public Billing getBill(int billNo) {
@@ -86,6 +113,5 @@ public class ItemService {
         }
         return cash_collection;
     }
- 
-    
+
 }
