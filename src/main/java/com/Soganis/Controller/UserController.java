@@ -102,9 +102,9 @@ public class UserController {
     }
     
     @PostMapping("/return_stock/bill")
-    public ResponseEntity<String> stockReturn(@RequestParam("sno") int sno,@RequestParam("barcodeId") String barchodeId) {
+    public ResponseEntity<String> stockReturn(@RequestParam("sno") int sno,@RequestParam("barcodeId") String barchodeId,@RequestParam("quantity") int quantity) {
 
-       String status=itemService.stockReturn(sno, barchodeId);
+       String status=itemService.stockReturn(sno, barchodeId,quantity);
           return ResponseEntity.ok(status);
     }
     

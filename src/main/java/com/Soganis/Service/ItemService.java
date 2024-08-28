@@ -114,17 +114,19 @@ public class ItemService {
         return cash_collection;
     }
 
-    public String stockReturn(int sno, String barcodedId) {
+    public String stockReturn(int sno, String barcodedId,int quantity) {
         try {
             Optional<BillingModel> opt = billModelRepository.findById(sno);
             if (opt.isPresent()) {
                 BillingModel billModel = opt.get();
                 Billing bill = billRepo.getBillByNo(billModel.getBilling().getBillNo());
-                int finalAmount = bill.getFinal_amount() - billModel.getTotal_amount();
+                Items item = itemRepo.getItemByItemBarcodeID(barcodedId);
+             
+                int price=Integer.parseInt(item.getPrice());
+                int amount=billModel.getQuantity()*price;
+                int finalAmount = bill.getFinal_amount() - amount;
                 bill.setFinal_amount(finalAmount);
 
-                int quantity = billModel.getQuantity();
-                Items item = itemRepo.getItemByItemBarcodeID(barcodedId);
                 int final_quantity = item.getQuantity() + quantity;
                 item.setQuantity(final_quantity);
                 itemRepo.save(item);
