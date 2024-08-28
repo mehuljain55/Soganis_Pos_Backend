@@ -14,4 +14,7 @@ public interface BillingRepository extends JpaRepository<Billing,Integer> {
     @Query("SELECT b FROM Billing b WHERE b.userId = :userId AND b.bill_date = :billDate")
     List<Billing> findByUserIdAndBillDate(@Param("userId") String userId, @Param("billDate") Date billDate);
     
+    @Query("SELECT b FROM Billing b WHERE b.billNo = :billNo")
+    Billing getBillByNo(@Param("billNo") int billNo);
+    
 }

@@ -100,6 +100,17 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
+    
+    @PostMapping("/return_stock/bill")
+    public ResponseEntity<String> stockReturn(@RequestParam("sno") int sno,@RequestParam("barcodeId") String barchodeId) {
+
+       String status=itemService.stockReturn(sno, barchodeId);
+          return ResponseEntity.ok(status);
+    }
+    
+    
+    
+    
 
     @PostMapping("/billRequest")
     public ResponseEntity<Billing> generateBill(@RequestBody Billing bill) {
