@@ -3,6 +3,7 @@ package com.Soganis.Service;
 import com.Soganis.Entity.Billing;
 import com.Soganis.Entity.BillingModel;
 import com.Soganis.Entity.Items;
+import com.Soganis.Model.ItemReturnModel;
 import com.Soganis.Repository.BillingModelRepository;
 import com.Soganis.Repository.BillingRepository;
 import com.Soganis.Repository.ItemsRepository;
@@ -114,25 +115,35 @@ public class ItemService {
         return cash_collection;
     }
 
-    public String stockReturn(int sno, String barcodedId,int quantity) {
+    public String stockReturn(List<ItemReturnModel> items) {
         try {
-            Optional<BillingModel> opt = billModelRepository.findById(sno);
-            if (opt.isPresent()) {
-                BillingModel billModel = opt.get();
-                Billing bill = billRepo.getBillByNo(billModel.getBilling().getBillNo());
-                Items item = itemRepo.getItemByItemBarcodeID(barcodedId);
-             
-                int price=Integer.parseInt(item.getPrice());
-                int amount=billModel.getQuantity()*price;
-                int finalAmount = bill.getFinal_amount() - amount;
-                bill.setFinal_amount(finalAmount);
-
-                int final_quantity = item.getQuantity() + quantity;
-                item.setQuantity(final_quantity);
-                itemRepo.save(item);
-                billModelRepository.deleteById(sno);
-                billRepo.save(bill);
-                return "Success";
+            if (items != null) {
+                for (ItemReturnModel itemModel : items) {
+                    Optional<BillingModel> opt = billModelRepository.findById(itemModel.getSno());
+                    if (opt.isPresent()) {
+                        BillingModel billModel = opt.get();
+                        Billing bill = billRepo.getBillByNo(billModel.getBilling().getBillNo());
+                        Items item = itemRepo.getItemByItemBarcodeID(billModel.getItemBarcodeID());
+                        int sellPrice = Integer.parseInt(item.getPrice());
+                        int amount = itemModel.getReturn_quantity() * sellPrice;
+                        int finalAmount = bill.getFinal_amount() - amount;
+                        int quantity = billModel.getQuantity() - itemModel.getReturn_quantity();
+                        int bill_amount = billModel.getTotal_amount() - amount;
+                        bill.setFinal_amount(finalAmount);
+                        billModel.setQuantity(quantity);
+                        billModel.setTotal_amount(bill_amount);
+                        billModelRepository.save(billModel);
+                        int final_quantity = item.getQuantity() + itemModel.getReturn_quantity();
+                        item.setQuantity(final_quantity);
+                        itemRepo.save(item);
+                        billModelRepository.save(billModel);
+                        billRepo.save(bill);
+                        if (quantity == 0) {
+                            billModelRepository.deleteById(billModel.getSno());
+                        }
+                    }
+                }
+                return "success";
             }
             return "Failed";
         } catch (Exception e) {

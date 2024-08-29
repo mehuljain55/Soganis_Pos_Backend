@@ -9,6 +9,7 @@ import com.Soganis.Entity.User;
 import com.Soganis.Entity.UserCashCollection;
 import com.Soganis.Entity.UserMonthlySalary;
 import com.Soganis.Entity.User_Salary;
+import com.Soganis.Model.ItemReturnModel;
 import com.Soganis.Service.InventoryService;
 import com.Soganis.Service.ItemService;
 import com.Soganis.Service.UserService;
@@ -102,10 +103,11 @@ public class UserController {
     }
     
     @PostMapping("/return_stock/bill")
-    public ResponseEntity<String> stockReturn(@RequestParam("sno") int sno,@RequestParam("barcodeId") String barchodeId,@RequestParam("quantity") int quantity) {
+    public ResponseEntity<String> stockReturn(@RequestBody List<ItemReturnModel> items) {
 
-       String status=itemService.stockReturn(sno, barchodeId,quantity);
-          return ResponseEntity.ok(status);
+       String status=itemService.stockReturn(items);
+       return ResponseEntity.ok(status);
+       
     }
     
     
@@ -139,8 +141,6 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
-    
-    
 
     @GetMapping("/getTodayUserCashCollection")
     public ResponseEntity<Integer> getTodayUserCashCollection(@RequestParam("userId") String userId) {
@@ -406,8 +406,6 @@ public class UserController {
         }
     }
 
-  
-
     public String print_bill(int bill_no) {
         Billing bill = itemService.getBill(bill_no);
 
@@ -430,7 +428,6 @@ public class UserController {
             Map<String, Object> parameters = new HashMap<>();
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
             String bill_date = dateFormat.format(bill.getBill_date());
-
             parameters.put("bill_no", bill.getBillNo());
             parameters.put("customer_name", bill.getCustomerName());
             parameters.put("mobile_no", bill.getCustomerMobileNo());
@@ -448,9 +445,8 @@ public class UserController {
         }
 
         return "Success";
-
     }
-
+        
     public String printPDF(String filePath) {
         try {
 
