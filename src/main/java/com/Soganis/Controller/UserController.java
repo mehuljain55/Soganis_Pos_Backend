@@ -31,6 +31,9 @@ import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.JasperReport;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -110,24 +113,25 @@ public class UserController {
        
     }
     
-    
-    
-    
+    @GetMapping("/health-check")
+    public String healthCheck() {
+        return "Server is running";
+    }
 
     @PostMapping("/billRequest")
-    public ResponseEntity<Billing> generateBill(@RequestBody Billing bill) {
+    public ResponseEntity<String> generateBill(@RequestBody Billing bill) {
         try {
             Billing createBill = itemService.saveBilling(bill);
             createBill.setBill(bill.getBill());
-            String status = print_bill(createBill.getBillNo());
-            System.out.println(status);
-            return ResponseEntity.ok(createBill);
+            String destination = print_bill(createBill.getBillNo());
+            System.out.println(destination);
+            return ResponseEntity.ok(destination);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
-    
+        
      @PostMapping("/intercompany/billRequest")
     public ResponseEntity<Billing> generateInterCompanyBill(@RequestBody Billing bill) {
         try {
@@ -405,6 +409,17 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
+    
+     @GetMapping("/generate_barcodes")
+    public ResponseEntity<String> generate_barcode_id() {
+        try {
+            String status=itemService.generateBarcodeImage();
+            return ResponseEntity.ok(status);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+    }
 
     public String print_bill(int bill_no) {
         Billing bill = itemService.getBill(bill_no);
@@ -438,13 +453,29 @@ public class UserController {
             JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, parameters, dataSource);
             String destination = "C:\\Users\\mehul\\Desktop\\Invoice\\" + bill.getCustomerName() + "_" + bill.getBillNo() + ".pdf";
             JasperExportManager.exportReportToPdfFile(jasperPrint, destination);
-            //printPDF(destination);
+          //  printPDFViaChrome(destination);
+            return destination;
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Failed";
+        }
+
+    }
+    
+    
+       @GetMapping("/search/item_code")
+    public ResponseEntity<Items> item_list_code(@RequestParam("barcode") String barcode) {
+
+        try {
+
+          Items item=itemService.getItemListCode(barcode);
+            return ResponseEntity.ok(item);
 
         } catch (Exception e) {
             e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
-
-        return "Success";
     }
         
     public String printPDF(String filePath) {
@@ -470,5 +501,30 @@ public class UserController {
             return "Unexpected error: " + e.getMessage();
         }
     }
+    
+    
+public String printPDFViaChrome(String filePath) {
+    try {
+        File pdfFile = new File(filePath);
+        if (!pdfFile.exists()) {
+            return "File not found: " + filePath;
+        }
+
+        // Windows specific command for opening Chrome directly in print preview
+        String chromeCommand = "cmd /c start chrome --print --kiosk-printing \"" + pdfFile.getAbsolutePath() + "\"";
+        
+        // Execute the command
+        Process process = Runtime.getRuntime().exec(chromeCommand);
+        process.waitFor();
+
+        return "PDF opened in Chrome's print preview successfully.";
+    } catch (IOException | InterruptedException e) {
+        e.printStackTrace();
+        return "Error opening PDF in Chrome: " + e.getMessage();
+    } catch (Exception e) {
+        e.printStackTrace();
+        return "Unexpected error: " + e.getMessage();
+    }
+}
 
 }

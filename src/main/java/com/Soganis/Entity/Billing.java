@@ -29,6 +29,7 @@ public class Billing {
     String paymentMode;
     String schoolName;
     String billType;
+    int balanceAmount;
 
     int item_count;
 

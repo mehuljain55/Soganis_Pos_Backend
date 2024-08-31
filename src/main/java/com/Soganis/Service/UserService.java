@@ -263,6 +263,8 @@ public class UserService {
                 .mapToInt(User_Salary::getAmount)
                 .sum();
     }
+    
+    
 
     public int convertMonthToInt(String month) {
         switch (month.toUpperCase()) {

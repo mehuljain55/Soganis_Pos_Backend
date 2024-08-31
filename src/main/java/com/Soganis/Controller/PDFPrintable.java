@@ -61,6 +61,8 @@ public class PDFPrintable implements Printable {
         public ImagePrintable(Image image) {
             this.image = image;
         }
+        
+        
 
         @Override
         public int print(Graphics graphics, PageFormat pageFormat, int pageIndex) throws PrinterException {
