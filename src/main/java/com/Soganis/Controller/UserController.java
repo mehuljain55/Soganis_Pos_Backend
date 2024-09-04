@@ -52,6 +52,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.Random;
+import org.springframework.http.MediaType;
 
 @RestController
 public class UserController {
@@ -117,34 +118,83 @@ public class UserController {
     public String healthCheck() {
         return "Server is running";
     }
+    
+@PostMapping("/billRequest")
+public ResponseEntity<byte[]> generateBill(@RequestBody Billing bill) {
+    try {
+        Billing createBill = itemService.saveBilling(bill);
+        createBill.setBill(bill.getBill());
+        byte[] pdfBytes = print_bill(createBill.getBillNo());
 
-    @PostMapping("/billRequest")
-    public ResponseEntity<String> generateBill(@RequestBody Billing bill) {
-        try {
-            Billing createBill = itemService.saveBilling(bill);
-            createBill.setBill(bill.getBill());
-            String destination = print_bill(createBill.getBillNo());
-            System.out.println(destination);
-            return ResponseEntity.ok(destination);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        if (pdfBytes != null) {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            headers.setContentDispositionFormData("inline", createBill.getCustomerName() + "_" + createBill.getBillNo() + ".pdf");
+
+            return ResponseEntity.ok()
+                .headers(headers)
+                .body(pdfBytes);
+        } else {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
+    } catch (Exception e) {
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
     }
-        
+}
+
+//    @PostMapping("/billRequest")
+//    public ResponseEntity<String> generateBill(@RequestBody Billing bill) {
+//        try {
+//            Billing createBill = itemService.saveBilling(bill);
+//            createBill.setBill(bill.getBill());
+//            String destination = print_bill(createBill.getBillNo());
+//            System.out.println(destination);
+//            return ResponseEntity.ok(destination);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+//        }
+//    }
+
      @PostMapping("/intercompany/billRequest")
-    public ResponseEntity<Billing> generateInterCompanyBill(@RequestBody Billing bill) {
-        try {
-            Billing createBill = itemService.saveInterCompanyBilling(bill);
-            createBill.setBill(bill.getBill());
-            String status = print_bill(createBill.getBillNo());
-            System.out.println(status);
-            return ResponseEntity.ok(createBill);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    public ResponseEntity<byte[]> generateInterCompanyBill(@RequestBody Billing bill) {
+           try {
+        Billing createBill = itemService.saveInterCompanyBilling(bill);
+        createBill.setBill(bill.getBill());
+        byte[] pdfBytes = print_bill(createBill.getBillNo());
+
+        if (pdfBytes != null) {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            headers.setContentDispositionFormData("inline", createBill.getCustomerName() + "_" + createBill.getBillNo() + ".pdf");
+
+            return ResponseEntity.ok()
+                .headers(headers)
+                .body(pdfBytes);
+        } else {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
+    } catch (Exception e) {
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
     }
+    }
+
+        
+//     @PostMapping("/intercompany/billRequest")
+//    public ResponseEntity<Billing> generateInterCompanyBill(@RequestBody Billing bill) {
+//        try {
+//            Billing createBill = itemService.saveInterCompanyBilling(bill);
+//            createBill.setBill(bill.getBill());
+//            String status = print_bill(createBill.getBillNo());
+//            System.out.println(status);
+//            return ResponseEntity.ok(createBill);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+//        }
+//    }
 
     @GetMapping("/getTodayUserCashCollection")
     public ResponseEntity<Integer> getTodayUserCashCollection(@RequestParam("userId") String userId) {
@@ -420,49 +470,88 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
-
-    public String print_bill(int bill_no) {
-        Billing bill = itemService.getBill(bill_no);
-
-        List<BillingModel> bills = bill.getBill();
-        List<BillingModel> newBill = new ArrayList<>();
-        int count = 1;
-        for (BillingModel billModel : bills) {
-            String desciption = billModel.getItemCategory() + " " + billModel.getItemType() + " " + billModel.getItemColor();
-            billModel.setDescription(desciption);
-            billModel.setSno(count);
-            newBill.add(billModel);
-            count = count + 1;
-        }
-        System.out.println(newBill.size());
-
-        try {
-
-            InputStream reportTemplate = UserController.class.getResourceAsStream("/static/Soganis.jrxml");
-            JasperReport jasperReport = JasperCompileManager.compileReport(reportTemplate);
-            Map<String, Object> parameters = new HashMap<>();
-            SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-            String bill_date = dateFormat.format(bill.getBill_date());
-            parameters.put("bill_no", bill.getBillNo());
-            parameters.put("customer_name", bill.getCustomerName());
-            parameters.put("mobile_no", bill.getCustomerMobileNo());
-            parameters.put("date", bill_date);
-            parameters.put("final_amount", bill.getFinal_amount());
-
-            JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(newBill);
-            JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, parameters, dataSource);
-            String destination = "C:\\Users\\mehul\\Desktop\\Invoice\\" + bill.getCustomerName() + "_" + bill.getBillNo() + ".pdf";
-            JasperExportManager.exportReportToPdfFile(jasperPrint, destination);
-          //  printPDFViaChrome(destination);
-            return destination;
-            
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "Failed";
-        }
-
-    }
     
+    
+    public byte[] print_bill(int bill_no) {
+    Billing bill = itemService.getBill(bill_no);
+
+    List<BillingModel> bills = bill.getBill();
+    List<BillingModel> newBill = new ArrayList<>();
+    int count = 1;
+    for (BillingModel billModel : bills) {
+        String description = billModel.getItemCategory() + " " + billModel.getItemType() + " " + billModel.getItemColor();
+        billModel.setDescription(description);
+        billModel.setSno(count);
+        newBill.add(billModel);
+        count = count + 1;
+    }
+
+    try {
+        InputStream reportTemplate = UserController.class.getResourceAsStream("/static/Test.jrxml");
+        JasperReport jasperReport = JasperCompileManager.compileReport(reportTemplate);
+        Map<String, Object> parameters = new HashMap<>();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+        String bill_date = dateFormat.format(bill.getBill_date());
+        parameters.put("bill_no", bill.getBillNo());
+        parameters.put("customer_name", bill.getCustomerName());
+        parameters.put("mobile_no", bill.getCustomerMobileNo());
+        parameters.put("date", bill_date);
+        parameters.put("final_amount", bill.getFinal_amount());
+
+        JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(newBill);
+        JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, parameters, dataSource);
+
+        // Export the JasperPrint object to a byte array
+        return JasperExportManager.exportReportToPdf(jasperPrint);
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        return null;
+    }
+}
+
+
+//    public String print_bill(int bill_no) {
+//        Billing bill = itemService.getBill(bill_no);
+//
+//        List<BillingModel> bills = bill.getBill();
+//        List<BillingModel> newBill = new ArrayList<>();
+//        int count = 1;
+//        for (BillingModel billModel : bills) {
+//            String desciption = billModel.getItemCategory() + " " + billModel.getItemType() + " " + billModel.getItemColor();
+//            billModel.setDescription(desciption);
+//            billModel.setSno(count);
+//            newBill.add(billModel);
+//            count = count + 1;
+//        }
+//        System.out.println(newBill.size());
+//
+//        try {
+//
+//            InputStream reportTemplate = UserController.class.getResourceAsStream("/static/Test.jrxml");
+//            JasperReport jasperReport = JasperCompileManager.compileReport(reportTemplate);
+//            Map<String, Object> parameters = new HashMap<>();
+//            SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+//            String bill_date = dateFormat.format(bill.getBill_date());
+//            parameters.put("bill_no", bill.getBillNo());
+//            parameters.put("customer_name", bill.getCustomerName());
+//            parameters.put("mobile_no", bill.getCustomerMobileNo());
+//            parameters.put("date", bill_date);
+//            parameters.put("final_amount", bill.getFinal_amount());
+//
+//            JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(newBill);
+//            JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, parameters, dataSource);
+//            String destination = "C:\\Users\\mehul\\Desktop\\Invoice\\" + bill.getCustomerName() + "_" + bill.getBillNo() + ".pdf";
+//            JasperExportManager.exportReportToPdfFile(jasperPrint, destination);
+//          //  printPDFViaChrome(destination);
+//            return destination;
+//            
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return "Failed";
+//        }
+//
+//    }
     
        @GetMapping("/search/item_code")
     public ResponseEntity<Items> item_list_code(@RequestParam("barcode") String barcode) {
