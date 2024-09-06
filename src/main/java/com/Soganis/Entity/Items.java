@@ -18,6 +18,7 @@ public class Items {
     private int sno;
     private String itemCode;
     private String itemName;
+    private String description;
     private String itemType;
     private String itemTypeID;
     private String itemColor;
@@ -152,6 +153,14 @@ public class Items {
 
     public void setWholeSalePrice(String wholeSalePrice) {
         this.wholeSalePrice = wholeSalePrice;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
     
     

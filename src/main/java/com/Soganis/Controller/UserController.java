@@ -13,6 +13,7 @@ import com.Soganis.Model.ItemReturnModel;
 import com.Soganis.Service.InventoryService;
 import com.Soganis.Service.ItemService;
 import com.Soganis.Service.UserService;
+import java.awt.image.BufferedImage;
 import java.awt.print.PrinterJob;
 import java.io.File;
 import java.io.FileInputStream;
@@ -52,6 +53,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.Random;
+import javax.imageio.ImageIO;
 import org.springframework.http.MediaType;
 
 @RestController
@@ -105,43 +107,87 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
-    
+
     @PostMapping("/return_stock/bill")
     public ResponseEntity<String> stockReturn(@RequestBody List<ItemReturnModel> items) {
 
-       String status=itemService.stockReturn(items);
-       return ResponseEntity.ok(status);
-       
+        String status = itemService.stockReturn(items);
+        return ResponseEntity.ok(status);
+
     }
     
+        @PostMapping("/stock/exchange")
+    public ResponseEntity<String> exchangeItems(@RequestBody List<ItemReturnModel> items)
+    {
+       
+            String status = itemService.stockExchange(items);
+        return ResponseEntity.ok(status);
+
+    }
+    
+    
+          @PostMapping("/stock/defect")
+    public ResponseEntity<String> exchangeItems(@RequestBody ItemReturnModel items)
+    {
+       
+            String status = itemService.stockDefectReturn(items);
+        return ResponseEntity.ok(status);
+
+    }
+
     @GetMapping("/health-check")
     public String healthCheck() {
         return "Server is running";
     }
-    
-@PostMapping("/billRequest")
-public ResponseEntity<byte[]> generateBill(@RequestBody Billing bill) {
-    try {
-        Billing createBill = itemService.saveBilling(bill);
-        createBill.setBill(bill.getBill());
-        byte[] pdfBytes = print_bill(createBill.getBillNo());
 
-        if (pdfBytes != null) {
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_PDF);
-            headers.setContentDispositionFormData("inline", createBill.getCustomerName() + "_" + createBill.getBillNo() + ".pdf");
+    @PostMapping("/billRequest")
+    public ResponseEntity<byte[]> generateBill(@RequestBody Billing bill) {
+        try {
+            Billing createBill = itemService.saveBilling(bill);
+            createBill.setBill(bill.getBill());
+            byte[] pdfBytes = print_bill(createBill.getBillNo());
 
-            return ResponseEntity.ok()
-                .headers(headers)
-                .body(pdfBytes);
-        } else {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            if (pdfBytes != null) {
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_PDF);
+                headers.setContentDispositionFormData("inline", createBill.getCustomerName() + "_" + createBill.getBillNo() + ".pdf");
+
+                return ResponseEntity.ok()
+                        .headers(headers)
+                        .body(pdfBytes);
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
-    } catch (Exception e) {
-        e.printStackTrace();
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
     }
-}
+    
+     @PostMapping("/exchange/billRequest")
+    public ResponseEntity<byte[]> generate_bill_exchange(@RequestBody Billing bill) {
+        try {
+            Billing createBill = itemService.saveBillExchange(bill);
+            createBill.setBill(bill.getBill());
+            byte[] pdfBytes = print_bill(createBill.getBillNo());
+
+            if (pdfBytes != null) {
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_PDF);
+                headers.setContentDispositionFormData("inline", createBill.getCustomerName() + "_" + createBill.getBillNo() + ".pdf");
+
+                return ResponseEntity.ok()
+                        .headers(headers)
+                        .body(pdfBytes);
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+    }
+    
 
 //    @PostMapping("/billRequest")
 //    public ResponseEntity<String> generateBill(@RequestBody Billing bill) {
@@ -156,32 +202,30 @@ public ResponseEntity<byte[]> generateBill(@RequestBody Billing bill) {
 //            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 //        }
 //    }
-
-     @PostMapping("/intercompany/billRequest")
+    @PostMapping("/intercompany/billRequest")
     public ResponseEntity<byte[]> generateInterCompanyBill(@RequestBody Billing bill) {
-           try {
-        Billing createBill = itemService.saveInterCompanyBilling(bill);
-        createBill.setBill(bill.getBill());
-        byte[] pdfBytes = print_bill(createBill.getBillNo());
+        try {
+            Billing createBill = itemService.saveInterCompanyBilling(bill);
+            createBill.setBill(bill.getBill());
+            byte[] pdfBytes = print_bill(createBill.getBillNo());
 
-        if (pdfBytes != null) {
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_PDF);
-            headers.setContentDispositionFormData("inline", createBill.getCustomerName() + "_" + createBill.getBillNo() + ".pdf");
+            if (pdfBytes != null) {
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_PDF);
+                headers.setContentDispositionFormData("inline", createBill.getCustomerName() + "_" + createBill.getBillNo() + ".pdf");
 
-            return ResponseEntity.ok()
-                .headers(headers)
-                .body(pdfBytes);
-        } else {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+                return ResponseEntity.ok()
+                        .headers(headers)
+                        .body(pdfBytes);
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
-    } catch (Exception e) {
-        e.printStackTrace();
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-    }
     }
 
-        
 //     @PostMapping("/intercompany/billRequest")
 //    public ResponseEntity<Billing> generateInterCompanyBill(@RequestBody Billing bill) {
 //        try {
@@ -195,7 +239,6 @@ public ResponseEntity<byte[]> generateBill(@RequestBody Billing bill) {
 //            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 //        }
 //    }
-
     @GetMapping("/getTodayUserCashCollection")
     public ResponseEntity<Integer> getTodayUserCashCollection(@RequestParam("userId") String userId) {
 
@@ -459,57 +502,69 @@ public ResponseEntity<byte[]> generateBill(@RequestBody Billing bill) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
-    
-     @GetMapping("/generate_barcodes")
-    public ResponseEntity<String> generate_barcode_id() {
+
+    @GetMapping("/generate_barcodes")
+    public ResponseEntity<byte[]> generateBarcodeId(@RequestParam("itemCode") String itemCode) {
         try {
-            String status=itemService.generateBarcodeImage();
-            return ResponseEntity.ok(status);
+            // Get the generated barcode image from the service
+            BufferedImage barcodeImage = itemService.generateBarcodeImage(itemCode);
+
+            // Convert the BufferedImage to a byte array
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write(barcodeImage, "png", baos);
+            byte[] imageBytes = baos.toByteArray();
+
+            // Set the response headers
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.IMAGE_PNG);
+            headers.setContentLength(imageBytes.length);
+
+            // Return the image bytes in the response
+            return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
+
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
-    
-    
+
     public byte[] print_bill(int bill_no) {
-    Billing bill = itemService.getBill(bill_no);
+        Billing bill = itemService.getBill(bill_no);
 
-    List<BillingModel> bills = bill.getBill();
-    List<BillingModel> newBill = new ArrayList<>();
-    int count = 1;
-    for (BillingModel billModel : bills) {
-        String description = billModel.getItemCategory() + " " + billModel.getItemType() + " " + billModel.getItemColor();
-        billModel.setDescription(description);
-        billModel.setSno(count);
-        newBill.add(billModel);
-        count = count + 1;
+        List<BillingModel> bills = bill.getBill();
+        List<BillingModel> newBill = new ArrayList<>();
+        int count = 1;
+        for (BillingModel billModel : bills) {
+            String description = billModel.getItemCategory() + " " + billModel.getItemType() + " " + billModel.getItemColor();
+            billModel.setDescription(description);
+            billModel.setSno(count);
+            newBill.add(billModel);
+            count = count + 1;
+        }
+
+        try {
+            InputStream reportTemplate = UserController.class.getResourceAsStream("/static/Test.jrxml");
+            JasperReport jasperReport = JasperCompileManager.compileReport(reportTemplate);
+            Map<String, Object> parameters = new HashMap<>();
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+            String bill_date = dateFormat.format(bill.getBill_date());
+            parameters.put("bill_no", bill.getBillNo());
+            parameters.put("customer_name", bill.getCustomerName());
+            parameters.put("mobile_no", bill.getCustomerMobileNo());
+            parameters.put("date", bill_date);
+            parameters.put("final_amount", bill.getFinal_amount());
+
+            JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(newBill);
+            JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, parameters, dataSource);
+
+            // Export the JasperPrint object to a byte array
+            return JasperExportManager.exportReportToPdf(jasperPrint);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
-
-    try {
-        InputStream reportTemplate = UserController.class.getResourceAsStream("/static/Test.jrxml");
-        JasperReport jasperReport = JasperCompileManager.compileReport(reportTemplate);
-        Map<String, Object> parameters = new HashMap<>();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-        String bill_date = dateFormat.format(bill.getBill_date());
-        parameters.put("bill_no", bill.getBillNo());
-        parameters.put("customer_name", bill.getCustomerName());
-        parameters.put("mobile_no", bill.getCustomerMobileNo());
-        parameters.put("date", bill_date);
-        parameters.put("final_amount", bill.getFinal_amount());
-
-        JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(newBill);
-        JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, parameters, dataSource);
-
-        // Export the JasperPrint object to a byte array
-        return JasperExportManager.exportReportToPdf(jasperPrint);
-
-    } catch (Exception e) {
-        e.printStackTrace();
-        return null;
-    }
-}
-
 
 //    public String print_bill(int bill_no) {
 //        Billing bill = itemService.getBill(bill_no);
@@ -552,13 +607,12 @@ public ResponseEntity<byte[]> generateBill(@RequestBody Billing bill) {
 //        }
 //
 //    }
-    
-       @GetMapping("/search/item_code")
+    @GetMapping("/search/item_code")
     public ResponseEntity<Items> item_list_code(@RequestParam("barcode") String barcode) {
 
         try {
 
-          Items item=itemService.getItemListCode(barcode);
+            Items item = itemService.getItemListCode(barcode);
             return ResponseEntity.ok(item);
 
         } catch (Exception e) {
@@ -566,7 +620,7 @@ public ResponseEntity<byte[]> generateBill(@RequestBody Billing bill) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
-        
+
     public String printPDF(String filePath) {
         try {
 
@@ -590,30 +644,6 @@ public ResponseEntity<byte[]> generateBill(@RequestBody Billing bill) {
             return "Unexpected error: " + e.getMessage();
         }
     }
+
     
-    
-public String printPDFViaChrome(String filePath) {
-    try {
-        File pdfFile = new File(filePath);
-        if (!pdfFile.exists()) {
-            return "File not found: " + filePath;
-        }
-
-        // Windows specific command for opening Chrome directly in print preview
-        String chromeCommand = "cmd /c start chrome --print --kiosk-printing \"" + pdfFile.getAbsolutePath() + "\"";
-        
-        // Execute the command
-        Process process = Runtime.getRuntime().exec(chromeCommand);
-        process.waitFor();
-
-        return "PDF opened in Chrome's print preview successfully.";
-    } catch (IOException | InterruptedException e) {
-        e.printStackTrace();
-        return "Error opening PDF in Chrome: " + e.getMessage();
-    } catch (Exception e) {
-        e.printStackTrace();
-        return "Unexpected error: " + e.getMessage();
-    }
-}
-
 }

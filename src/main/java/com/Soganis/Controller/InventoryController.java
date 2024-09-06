@@ -1,6 +1,7 @@
 package com.Soganis.Controller;
 
 import com.Soganis.Entity.PurchaseOrderBook;
+import com.Soganis.Model.ItemAddModel;
 import com.Soganis.Service.InventoryService;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -97,6 +98,14 @@ public class InventoryController {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
+    }
+    
+    @PostMapping("/update_inventory")
+    public String updateInventory(@RequestBody List<ItemAddModel> itemAddModel )
+    {
+    String status=inventoryService.addItemsInventory(itemAddModel);
+    return status;
+        
     }
     
     

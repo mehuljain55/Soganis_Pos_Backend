@@ -3,6 +3,7 @@ package com.Soganis.Service;
 import com.Soganis.Entity.BillingModel;
 import com.Soganis.Entity.Items;
 import com.Soganis.Entity.PurchaseOrderBook;
+import com.Soganis.Model.ItemAddModel;
 import com.Soganis.Repository.ItemsRepository;
 import com.Soganis.Repository.PurchaseOrderBookRepo;
 import java.util.Date;
@@ -95,6 +96,18 @@ public class InventoryService {
       {
         order.setStatus("GENERATED");
         purchaseOrderRepo.save(order);
+      }
+      return "Success";
+    }
+    
+    public String addItemsInventory(List<ItemAddModel> itemList)
+    {
+      for(ItemAddModel itemAddModel:itemList)
+      {
+       Items item=itemRepo.getItemByItemBarcodeID(itemAddModel.getBarcodedId());
+       int total_quantity=item.getQuantity()+itemAddModel.getQuantity();
+       item.setQuantity(total_quantity);
+       itemRepo.save(item);
       }
       return "Success";
     }

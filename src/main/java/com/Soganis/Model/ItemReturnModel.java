@@ -6,6 +6,8 @@ public class ItemReturnModel {
    private int sno;
    private String barcodedId;
    private int return_quantity;
+   private int price;
+   private String userId;
 
     public int getSno() {
         return sno;
@@ -30,6 +32,26 @@ public class ItemReturnModel {
     public void setReturn_quantity(int return_quantity) {
         this.return_quantity = return_quantity;
     }
+
+    public int getPrice() {
+        return price;
+    }
+
+    public void setPrice(int price) {
+        this.price = price;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+    
+    
+    
+    
 
     @Override
     public String toString() {

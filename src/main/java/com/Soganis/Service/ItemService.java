@@ -64,8 +64,20 @@ public class ItemService {
                     billingModel.setBilling(savedBilling);
                     final_amount = final_amount + billingModel.getTotal_amount();
                     billingModel.setBill_date(new Date());
+                   if(billingModel.getItemBarcodeID().equals("SG9999999"))
+                   {
+                    String description=billingModel.getItemCategory()+" "+billingModel.getItemType()+" "+billingModel.getItemSize();
+                    billingModel.setDescription(description);
+                   }
+                   else{
+                     Items item=itemRepo.getItemByItemBarcodeID(billingModel.getItemBarcodeID());
+                     billingModel.setDescription(item.getItemName());
+                   }
+                    
+                    
                     String status = inventoryService.updateInventory(billingModel);
                     System.out.println(status);
+                    
                     billModelRepository.save(billingModel);
                 }
                 savedBilling.setFinal_amount(final_amount);
@@ -78,6 +90,48 @@ public class ItemService {
             return null;
         }
     }
+    
+    public Billing saveBillExchange(Billing billing) {
+        try {
+            int final_amount = 0;
+            billing.setBill_date(new Date());
+            billing.setBillType("Retail");
+            Billing savedBilling = billRepo.save(billing);
+
+            if (billing.getBill() != null) {
+                for (BillingModel billingModel : billing.getBill()) {
+                    billingModel.setBilling(savedBilling);
+                    final_amount = final_amount + billingModel.getTotal_amount();
+                    billingModel.setBill_date(new Date());
+                   if(billingModel.getItemBarcodeID().equals("SG9999999"))
+                   {
+                    String description=billingModel.getItemCategory()+" "+billingModel.getItemType()+" "+billingModel.getItemSize();
+                    billingModel.setDescription(description);
+                   }
+                   else{
+                     Items item=itemRepo.getItemByItemBarcodeID(billingModel.getItemBarcodeID());
+                     billingModel.setDescription(item.getItemName());
+                   }
+                    
+                    
+                    String status = inventoryService.updateInventory(billingModel);
+                    System.out.println(status);
+                    
+                    billModelRepository.save(billingModel);
+                }
+                System.out.println(billing.getBalanceAmount());
+                final_amount=final_amount-billing.getBalanceAmount();
+                savedBilling.setFinal_amount(final_amount);
+                billRepo.save(savedBilling);
+                savedBilling.setBill(billing.getBill());
+            }
+            return savedBilling;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    
 
     public Billing saveInterCompanyBilling(Billing billing) {
         try {
@@ -134,32 +188,233 @@ public class ItemService {
 
     public String stockReturn(List<ItemReturnModel> items) {
         try {
-            if (items != null) {
+            
+              if (items != null) {
+                int bill_no=0;
+                int finalAmount=0;
+                String customerName="";
+                String customerMobileNo="";
+                String school="";
+                String userId="";
+                System.out.println(items);
+                
                 for (ItemReturnModel itemModel : items) {
+                   
                     Optional<BillingModel> opt = billModelRepository.findById(itemModel.getSno());
                     if (opt.isPresent()) {
                         BillingModel billModel = opt.get();
-                        Billing bill = billRepo.getBillByNo(billModel.getBilling().getBillNo());
+                        Billing   bill = billRepo.getBillByNo(billModel.getBilling().getBillNo());
+                        bill_no=bill.getBillNo();
+                        userId=itemModel.getUserId();
+                        customerName=bill.getCustomerName();
+                        customerMobileNo=bill.getCustomerMobileNo();
+                        school=bill.getSchoolName();
                         Items item = itemRepo.getItemByItemBarcodeID(billModel.getItemBarcodeID());
-                        int sellPrice = Integer.parseInt(item.getPrice());
-                        int amount = itemModel.getReturn_quantity() * sellPrice;
-                        int finalAmount = bill.getFinal_amount() - amount;
-                        int quantity = billModel.getQuantity() - itemModel.getReturn_quantity();
-                        int bill_amount = billModel.getTotal_amount() - amount;
-                        bill.setFinal_amount(finalAmount);
-                        billModel.setQuantity(quantity);
-                        billModel.setTotal_amount(bill_amount);
-                        billModelRepository.save(billModel);
-                        int final_quantity = item.getQuantity() + itemModel.getReturn_quantity();
-                        item.setQuantity(final_quantity);
+                        int total_quantity=item.getQuantity()+itemModel.getReturn_quantity();
+                        item.setQuantity(total_quantity);
+                        int sellPrice=itemModel.getPrice();
+                        String description=billModel.getDescription()+" (Returned)";
+                        
+                        System.out.println(itemModel.getReturn_quantity());
+                        System.out.println(sellPrice);
+                        int totalAmount=sellPrice*(itemModel.getReturn_quantity());
+                        billModel.setStatus("Returned");
+                        
+                        
+                        
+                        
+                        finalAmount=finalAmount+totalAmount;
+                        int quantity=(itemModel.getReturn_quantity()*-1);
+                        
+                        BillingModel billingModel=new BillingModel();
+                        billingModel.setBilling(bill);
+                        billingModel.setItemBarcodeID(billModel.getItemBarcodeID());
+                        billingModel.setItemCategory(billModel.getItemCategory());
+                        billingModel.setDescription(description);
+                        billingModel.setItemColor(billModel.getItemColor());
+                        billingModel.setItemSize(billModel.getItemSize());
+                        billingModel.setItemType(billModel.getItemType());
+                        billingModel.setSellPrice(sellPrice);
+                        billingModel.setBill_date(new Date());
+                        billingModel.setTotal_amount((totalAmount)*-1);
+                        billingModel.setQuantity(quantity);
+                       
+                        billModelRepository.save(billingModel);
                         itemRepo.save(item);
-                        billModelRepository.save(billModel);
-                        billRepo.save(bill);
-                        if (quantity == 0) {
-                            billModelRepository.deleteById(billModel.getSno());
-                        }
+                        
                     }
                 }
+                        System.out.println(finalAmount);
+                        Billing billing=new Billing();
+                        billing.setBill_date(new Date());
+                        billing.setDescription("Exhange item from bill no "+bill_no);
+                        billing.setUserId(userId);
+                        billing.setCustomerName(customerName);
+                        billing.setCustomerMobileNo(customerMobileNo);
+                        billing.setSchoolName(school);
+                        billing.setFinal_amount((finalAmount)*-1);
+                        billRepo.save(billing);
+                        
+                
+                
+                
+                return "success";
+            }
+            return "Failed";
+          
+                    
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "failed";
+        }
+    }
+    
+    
+     public String stockDefectReturn(ItemReturnModel itemModel) {
+        try {
+            
+              
+                int bill_no=0;
+                int finalAmount=0;
+                String customerName="";
+                String customerMobileNo="";
+                String school="";
+                String userId="";
+           
+                   
+                    Optional<BillingModel> opt = billModelRepository.findById(itemModel.getSno());
+                    if (opt.isPresent()) {
+                        BillingModel billModel = opt.get();
+                        Billing   bill = billRepo.getBillByNo(billModel.getBilling().getBillNo());
+                        bill_no=bill.getBillNo();
+                        userId=itemModel.getUserId();
+                        customerName=bill.getCustomerName();
+                        customerMobileNo=bill.getCustomerMobileNo();
+                        school=bill.getSchoolName();
+                        Items item = itemRepo.getItemByItemBarcodeID(billModel.getItemBarcodeID());
+                        int total_quantity=item.getQuantity()+itemModel.getReturn_quantity();
+                        item.setQuantity(total_quantity);
+                        int sellPrice=itemModel.getPrice();
+                        String description=billModel.getDescription()+" (Defected Item)";
+                        
+                        System.out.println(itemModel.getReturn_quantity());
+                        System.out.println(sellPrice);
+                        int totalAmount=sellPrice*(itemModel.getReturn_quantity());
+                        billModel.setStatus("Defected");
+                        
+                        
+                        
+                        
+                        finalAmount=finalAmount+totalAmount;
+                        int quantity=(itemModel.getReturn_quantity()*-1);
+                        
+                        BillingModel billingModel=new BillingModel();
+                        billingModel.setBilling(bill);
+                        billingModel.setItemBarcodeID(billModel.getItemBarcodeID());
+                        billingModel.setItemCategory(billModel.getItemCategory());
+                        billingModel.setDescription(description);
+                        billingModel.setItemColor(billModel.getItemColor());
+                        billingModel.setItemSize(billModel.getItemSize());
+                        billingModel.setItemType(billModel.getItemType());
+                        billingModel.setSellPrice(sellPrice);
+                        billingModel.setBill_date(new Date());
+                        billingModel.setTotal_amount((totalAmount)*-1);
+                        billingModel.setQuantity(quantity);
+                       
+                        billModelRepository.save(billingModel);
+                        
+                    
+                
+                        System.out.println(finalAmount);
+                        Billing billing=new Billing();
+                        billing.setBill_date(new Date());
+                        billing.setDescription("Defected item from bill no "+bill_no);
+                        billing.setUserId(userId);
+                        billing.setCustomerName(customerName);
+                        billing.setCustomerMobileNo(customerMobileNo);
+                        billing.setSchoolName(school);
+                        billing.setFinal_amount((finalAmount)*-1);
+                        billRepo.save(billing);
+                        
+                
+                
+                
+                return "success";
+            }
+            return "Failed";
+          
+                    
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "failed";
+        }
+    }
+    
+    
+    
+    
+    public String stockExchange(List<ItemReturnModel> items) {
+        try {
+            if (items != null) {
+                int bill_no=0;
+                int finalAmount=0;
+                String customerName="";
+                String customerMobileNo="";
+                String school="";
+                String userId="";
+                System.out.println(items);
+                
+                for (ItemReturnModel itemModel : items) {
+                   
+                    Optional<BillingModel> opt = billModelRepository.findById(itemModel.getSno());
+                    if (opt.isPresent()) {
+                        BillingModel billModel = opt.get();
+                        Billing   bill = billRepo.getBillByNo(billModel.getBilling().getBillNo());
+                        bill_no=bill.getBillNo();
+                        userId=itemModel.getUserId();
+                        customerName=bill.getCustomerName();
+                        customerMobileNo=bill.getCustomerMobileNo();
+                        school=bill.getSchoolName();
+                        Items item = itemRepo.getItemByItemBarcodeID(billModel.getItemBarcodeID());
+                        int total_quantity=item.getQuantity()+itemModel.getReturn_quantity();
+                        item.setQuantity(total_quantity);
+                        int sellPrice=itemModel.getPrice();
+                        String description=billModel.getDescription()+" (Exhange)";
+                        
+                        System.out.println(itemModel.getReturn_quantity());
+                        System.out.println(sellPrice);
+                        int totalAmount=sellPrice*(itemModel.getReturn_quantity());
+                        billModel.setStatus("Exchanged");
+                        
+                        
+                        
+                        
+                        finalAmount=finalAmount+totalAmount;
+                        int quantity=(itemModel.getReturn_quantity()*-1);
+                        
+                        BillingModel billingModel=new BillingModel();
+                        billingModel.setBilling(bill);
+                        billingModel.setItemBarcodeID(billModel.getItemBarcodeID());
+                        billingModel.setItemCategory(billModel.getItemCategory());
+                        billingModel.setDescription(description);
+                        billingModel.setItemColor(billModel.getItemColor());
+                        billingModel.setItemSize(billModel.getItemSize());
+                        billingModel.setItemType(billModel.getItemType());
+                        billingModel.setSellPrice(sellPrice);
+                        billingModel.setBill_date(new Date());
+                        billingModel.setTotal_amount((totalAmount)*-1);
+                        billingModel.setQuantity(quantity);
+                       
+                        billModelRepository.save(billingModel);
+                        itemRepo.save(item);
+                        
+                        
+                    }
+                }
+                        
+                
+                
+                
                 return "success";
             }
             return "Failed";
@@ -169,66 +424,60 @@ public class ItemService {
         }
     }
     
-    public String generateBarcodeImage()
-    {
-   //  Items item=itemRepo.getItemByItemBarcodeID("SG000000006");
-     
-     List<Items> items=itemRepo.findAll();
-     for(Items item:items)
-     {
-     generateCode(item.getItemCategory(),item.getItemCode(),item.getItemType());
-     }
-        return "Success";
-      
+  public BufferedImage generateBarcodeImage(String itemCode) {
+    Items item = itemRepo.findItemsByItemCode(itemCode);
+    return generateCode(item.getItemCategory(), item.getItemCode(), item.getDescription());
+}
+
+  public BufferedImage generateCode(String school, String itemCode, String itemType) {
+    try {
+        // Dimensions for 5 cm x 3 cm at 96 DPI
+        int dpi = 96;
+        int barcodeWidth = (int) (5.0 / 2.54 * dpi);  // Width in pixels
+        int barcodeHeight = (int) (3.0 / 2.54 * dpi); // Height in pixels
+        int margin = 10;  // Smaller margin for labels
+
+        // Adjusted height for the barcode (reduce the height a bit more)
+        int barcodeDisplayHeight = (int) (barcodeHeight * 0.4);  // Reduced height for the barcode
+
+        // Generate the barcode as a BitMatrix
+        BitMatrix bitMatrix = new MultiFormatWriter().encode(itemCode, BarcodeFormat.CODE_128, barcodeWidth, barcodeDisplayHeight);
+
+        // Convert BitMatrix to BufferedImage
+        BufferedImage barcodeImage = MatrixToImageWriter.toBufferedImage(bitMatrix);
+
+        // Create a new image with extra space for header and footer
+        BufferedImage finalImage = new BufferedImage(barcodeWidth, barcodeHeight, BufferedImage.TYPE_INT_RGB);
+        Graphics2D g = finalImage.createGraphics();
+
+        // Set background color
+        g.setColor(Color.WHITE);
+        g.fillRect(0, 0, barcodeWidth, barcodeHeight);
+
+        // Draw the header
+        g.setColor(Color.BLACK);
+        g.setFont(new Font("Arial", Font.PLAIN, 10)); // Smaller font for small image
+        g.drawString(school, (barcodeWidth - g.getFontMetrics().stringWidth(school)) / 2, margin);
+
+        // Draw the barcode
+        g.drawImage(barcodeImage, 0, margin + 10, null);
+
+        // Draw the barcode text (footer part 1)
+        g.drawString(itemCode, (barcodeWidth - g.getFontMetrics().stringWidth(itemCode)) / 2, barcodeHeight - margin - 25);
+
+        // Draw the item type text (footer part 2)
+        g.drawString(itemType, (barcodeWidth - g.getFontMetrics().stringWidth(itemType)) / 2, barcodeHeight - margin-10);
+
+        g.dispose();
+
+        // Return the final image instead of saving it to a file
+        return finalImage;
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        return null;  // In case of error, return null
     }
-    
-    public void generateCode(String school,String itemCode,String itemType)
-    {
-     try {
-            
-            String filePath = "C:\\Users\\mehul\\Desktop\\Invoice\\"+itemCode+".png"; // Path where the barcode image will be saved
-            int barcodeWidth = 280; // Width of the barcode image
-            int barcodeHeight = 100; // Height of the barcode image
-            int margin = 20; // Margin for header and footer
+}
 
-            // Generate the barcode as a BitMatrix
-            BitMatrix bitMatrix = new MultiFormatWriter().encode(itemCode, BarcodeFormat.CODE_128, barcodeWidth, barcodeHeight);
 
-            // Convert BitMatrix to BufferedImage
-            BufferedImage barcodeImage = MatrixToImageWriter.toBufferedImage(bitMatrix);
-
-            // Create a new image with extra space for header and footer
-            BufferedImage finalImage = new BufferedImage(barcodeWidth, barcodeHeight + margin * 3, BufferedImage.TYPE_INT_RGB);
-            Graphics2D g = finalImage.createGraphics();
-
-            // Set background color
-            g.setColor(Color.WHITE);
-            g.fillRect(0, 0, barcodeWidth, barcodeHeight + margin * 3);
-
-            // Draw the header
-            g.setColor(Color.BLACK);
-            g.setFont(new Font("Arial", Font.BOLD, 14));
-            g.drawString(school, (barcodeWidth - g.getFontMetrics().stringWidth(school)) / 2, margin - 5);
-
-            // Draw the barcode
-            g.drawImage(barcodeImage, 0, margin, null);
-
-            // Draw the barcode text (footer part 1)
-            g.drawString(itemCode, (barcodeWidth - g.getFontMetrics().stringWidth(itemCode)) / 2, barcodeHeight + margin + g.getFontMetrics().getHeight() - 5);
-
-            // Draw the "T-shirt" text (footer part 2)
-            g.drawString(itemType, (barcodeWidth - g.getFontMetrics().stringWidth(itemType)) / 2, barcodeHeight + margin + g.getFontMetrics().getHeight() + 15);
-
-            g.dispose();
-
-            // Save the final image to the specified file path
-            Path path = Paths.get(filePath);
-            ImageIO.write(finalImage, "PNG", path.toFile());
-
-            System.out.println("Barcode with header and footer generated and saved to " + filePath);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    
-    }
 }

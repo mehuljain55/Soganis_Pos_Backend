@@ -39,6 +39,7 @@ public class BillingModel {
 
     private int quantity;
     private int total_amount;
+    private String status;
 
     public BillingModel() {
     }
@@ -150,6 +151,16 @@ public class BillingModel {
     public void setTotal_amount(int total_amount) {
         this.total_amount = total_amount;
     }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+    
+    
 
     @Override
     public String toString() {

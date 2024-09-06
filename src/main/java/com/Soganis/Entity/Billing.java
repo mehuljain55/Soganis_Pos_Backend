@@ -27,6 +27,7 @@ public class Billing {
     String customerName;
     String customerMobileNo;
     String paymentMode;
+    String description;
     String schoolName;
     String billType;
     int balanceAmount;
@@ -124,6 +125,23 @@ public class Billing {
     public void setSchoolName(String schoolName) {
         this.schoolName = schoolName;
     }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public int getBalanceAmount() {
+        return balanceAmount;
+    }
+
+    public void setBalanceAmount(int balanceAmount) {
+        this.balanceAmount = balanceAmount;
+    }
+    
     
     
     
