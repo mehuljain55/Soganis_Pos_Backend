@@ -27,10 +27,25 @@ public interface ItemsRepository extends JpaRepository<Items, Integer> {
 
     @Query("SELECT DISTINCT i.itemCategory FROM Items i")
     List<String> findDistinctItemCategories();
+    
+    
 
     @Query("SELECT DISTINCT i.itemType FROM Items i")
     List<String> findDistinctItemTypes();
 
+    @Query("SELECT DISTINCT i.itemSize FROM Items i WHERE i.itemType = :itemType ORDER BY i.itemSize ASC")
+    List<String> findDistinctItemSizeByItemType(@Param("itemType") String itemType);
+
+    @Query("SELECT DISTINCT i.itemTypeCode FROM Items i WHERE i.itemType = :itemType")
+    String findDistinctItemTypeCode(@Param("itemType") String itemType);
+
+    
+    
+    @Query("SELECT DISTINCT i.schoolCode FROM Items i WHERE i.itemType = :itemType")
+    List<String> findDistinctSchoolCodeByItemType(@Param("itemType") String itemType);
+
+    
+    
     @Query("SELECT DISTINCT i.itemType FROM Items i where i.itemCategory=:itemCategory")
     List<String> findDistinctItemTypesByScool(@Param("itemCategory") String itemCategory);
 
@@ -43,5 +58,6 @@ public interface ItemsRepository extends JpaRepository<Items, Integer> {
     @Query("SELECT i FROM Items i WHERE i.itemCategory = :itemCategory and i.itemType=:itemType")
     List<Items> findItemsBySchoolAndType(@Param("itemCategory") String itemCategory,
                                          @Param("itemType") String itemType);
+    
 
 }

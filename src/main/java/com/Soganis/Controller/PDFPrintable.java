@@ -21,7 +21,7 @@ public class PDFPrintable implements Printable {
     public PDFPrintable(FileInputStream fileInputStream) {
         this.fileInputStream = fileInputStream;
     }
-
+    
     @Override
     public int print(Graphics graphics, PageFormat pageFormat, int pageIndex) throws PrinterException {
         if (pageIndex > 0) {
@@ -72,7 +72,6 @@ public class PDFPrintable implements Printable {
 
             Graphics2D graphics2D = (Graphics2D) graphics;
             graphics2D.drawImage(image, 0, 0, null);
-
             return Printable.PAGE_EXISTS;
         }
     }

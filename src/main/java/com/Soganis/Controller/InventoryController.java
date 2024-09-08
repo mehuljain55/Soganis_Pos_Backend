@@ -20,9 +20,12 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 
 
 
@@ -107,6 +110,18 @@ public class InventoryController {
     return status;
         
     }
+ 
+       
+    @GetMapping("/inventory_format")
+    public String inventoryFormat( ) throws IOException
+    {
+        
+    String status=inventoryService.generateInventoryExcel();
+    return status;
+        
+    }
+    
+    
     
     
 }
