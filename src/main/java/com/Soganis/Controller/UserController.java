@@ -9,6 +9,7 @@ import com.Soganis.Entity.User;
 import com.Soganis.Entity.UserCashCollection;
 import com.Soganis.Entity.UserMonthlySalary;
 import com.Soganis.Entity.User_Salary;
+import com.Soganis.Model.ItemExchangeModel;
 import com.Soganis.Model.ItemReturnModel;
 import com.Soganis.Service.InventoryService;
 import com.Soganis.Service.ItemService;
@@ -165,9 +166,11 @@ public class UserController {
     }
     
      @PostMapping("/exchange/billRequest")
-    public ResponseEntity<byte[]> generate_bill_exchange(@RequestBody Billing bill) {
+    public ResponseEntity<byte[]> generate_bill_exchange(@RequestBody ItemExchangeModel itemModel) {
         try {
-            Billing createBill = itemService.saveBillExchange(bill);
+            Billing bill=itemModel.getBill();
+            Billing createBill = itemService.saveBillExchange(bill,itemModel.getItemModel());
+            
             createBill.setBill(bill.getBill());
             byte[] pdfBytes = print_bill(createBill.getBillNo());
 

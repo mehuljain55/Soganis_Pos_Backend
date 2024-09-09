@@ -15,13 +15,10 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import javax.imageio.ImageIO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -91,15 +88,49 @@ public class ItemService {
         }
     }
     
-    public Billing saveBillExchange(Billing billing) {
+    public Billing saveBillExchange(Billing billing,List<ItemReturnModel> itemList) {
         try {
             int final_amount = 0;
             billing.setBill_date(new Date());
             billing.setBillType("Retail");
             Billing savedBilling = billRepo.save(billing);
+            List<BillingModel> bill=billing.getBill();
+            
+          for(ItemReturnModel itemModel:itemList)
+          {
+            Items item=itemRepo.getItemByItemBarcodeID(itemModel.getBarcodedId());
+            int totalAmount=itemModel.getReturn_quantity() * itemModel.getPrice();
+           
+            BillingModel billingModel=new BillingModel();
+             billingModel.setBilling(savedBilling);
+             billingModel.setItemBarcodeID(itemModel.getBarcodedId());
+             billingModel.setBill_date(new Date());
+             billingModel.setItemSize(item.getItemSize());
+             billingModel.setItemColor(item.getItemColor());
+             billingModel.setItemType(item.getItemType());
+             billingModel.setItemCategory(item.getItemCategory());
+             billingModel.setQuantity((itemModel.getReturn_quantity())*-1);
+             billingModel.setTotal_amount(totalAmount*-1);
+             bill.add(billingModel);
+             
+            Optional<BillingModel> opt=billModelRepository.findById(itemModel.getSno());
+            if(opt.isPresent())
+            {
+                BillingModel save_bill=opt.get();
+                save_bill.setStatus("Exchanged");
+                billModelRepository.save(save_bill);
+                
+              
+            }
+                       
+             
+            
+             
+          }
+            
 
             if (billing.getBill() != null) {
-                for (BillingModel billingModel : billing.getBill()) {
+                for (BillingModel billingModel : bill) {
                     billingModel.setBilling(savedBilling);
                     final_amount = final_amount + billingModel.getTotal_amount();
                     billingModel.setBill_date(new Date());
@@ -120,7 +151,7 @@ public class ItemService {
                     billModelRepository.save(billingModel);
                 }
                 System.out.println(billing.getBalanceAmount());
-                final_amount=final_amount-billing.getBalanceAmount();
+          
                 savedBilling.setFinal_amount(final_amount);
                 billRepo.save(savedBilling);
                 savedBilling.setBill(billing.getBill());
@@ -429,16 +460,16 @@ public class ItemService {
     return generateCode(item.getItemCategory(), item.getItemCode(), item.getDescription());
 }
 
-  public BufferedImage generateCode(String school, String itemCode, String itemType) {
+ public BufferedImage generateCode(String school, String itemCode, String itemType) {
     try {
         // Dimensions for 5 cm x 3 cm at 96 DPI
         int dpi = 96;
         int barcodeWidth = (int) (5.0 / 2.54 * dpi);  // Width in pixels
-        int barcodeHeight = (int) (3.0 / 2.54 * dpi); // Height in pixels
+        int barcodeHeight = (int) (2.5 / 2.54 * dpi); // Height in pixels
         int margin = 10;  // Smaller margin for labels
 
-        // Adjusted height for the barcode (reduce the height a bit more)
-        int barcodeDisplayHeight = (int) (barcodeHeight * 0.4);  // Reduced height for the barcode
+        // Adjusted height for the barcode (reduce the height further)
+        int barcodeDisplayHeight = (int) (barcodeHeight * 0.35);  // Further reduced height for the barcode
 
         // Generate the barcode as a BitMatrix
         BitMatrix bitMatrix = new MultiFormatWriter().encode(itemCode, BarcodeFormat.CODE_128, barcodeWidth, barcodeDisplayHeight);
@@ -457,16 +488,17 @@ public class ItemService {
         // Draw the header
         g.setColor(Color.BLACK);
         g.setFont(new Font("Arial", Font.PLAIN, 10)); // Smaller font for small image
-        g.drawString(school, (barcodeWidth - g.getFontMetrics().stringWidth(school)) / 2, margin);
+        g.drawString(school, (barcodeWidth - g.getFontMetrics().stringWidth(school)) / 2, margin + 5); // Adjusted position
 
         // Draw the barcode
-        g.drawImage(barcodeImage, 0, margin + 10, null);
+        int barcodeYPosition = margin + 15; // Adjusted position to move up
+        g.drawImage(barcodeImage, 0, barcodeYPosition, null);
 
         // Draw the barcode text (footer part 1)
-        g.drawString(itemCode, (barcodeWidth - g.getFontMetrics().stringWidth(itemCode)) / 2, barcodeHeight - margin - 25);
+        g.drawString(itemCode, (barcodeWidth - g.getFontMetrics().stringWidth(itemCode)) / 2, barcodeHeight - margin -15 ); // Adjusted position
 
         // Draw the item type text (footer part 2)
-        g.drawString(itemType, (barcodeWidth - g.getFontMetrics().stringWidth(itemType)) / 2, barcodeHeight - margin-10);
+        g.drawString(itemType, (barcodeWidth - g.getFontMetrics().stringWidth(itemType)) / 2, barcodeHeight - margin -5); // Adjusted position
 
         g.dispose();
 
@@ -478,6 +510,5 @@ public class ItemService {
         return null;  // In case of error, return null
     }
 }
-
 
 }

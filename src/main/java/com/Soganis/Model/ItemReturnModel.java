@@ -5,6 +5,8 @@ public class ItemReturnModel {
   
    private int sno;
    private String barcodedId;
+   private String itemCategory;
+   private String itemType;
    private int return_quantity;
    private int price;
    private String userId;
@@ -45,6 +47,25 @@ public class ItemReturnModel {
         return userId;
     }
 
+    public String getItemCategory() {
+        return itemCategory;
+    }
+
+    public void setItemCategory(String itemCategory) {
+        this.itemCategory = itemCategory;
+    }
+
+    public String getItemType() {
+        return itemType;
+    }
+
+    public void setItemType(String itemType) {
+        this.itemType = itemType;
+    }
+
+    
+    
+    
     public void setUserId(String userId) {
         this.userId = userId;
     }

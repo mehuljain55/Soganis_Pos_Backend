@@ -21,6 +21,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -96,10 +97,31 @@ public class InventoryService {
         }
     }
     
+   
+    
     public List<PurchaseOrderBook>  view_order()
     {
       List<PurchaseOrderBook> lst=purchaseOrderRepo.findItemsWithStatusNotGenerated();
       return lst;
+    }
+    
+    public String deletePurchaseOrder(int orderId)
+    {
+      try{
+          Optional<PurchaseOrderBook> opt=purchaseOrderRepo.findById(orderId);
+          if(opt.isPresent())
+          {
+          PurchaseOrderBook order=opt.get();
+          purchaseOrderRepo.deleteById(orderId);
+         
+          }
+           return "Success";
+      
+      }catch(Exception e)
+      {
+       e.printStackTrace();
+       return "Failed";
+      }
     }
     
     public String updateOrder(List<PurchaseOrderBook> orders)
@@ -123,6 +145,7 @@ public class InventoryService {
       }
       return "Success";
     }
+   
     
 //   public String generateInventoryExcel() throws IOException {
 //    // Create a new workbook and sheet

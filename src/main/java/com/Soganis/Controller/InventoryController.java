@@ -26,6 +26,7 @@ import java.util.Random;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 
 
@@ -101,6 +102,15 @@ public class InventoryController {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
+    }
+    
+    
+    @PostMapping("/order/delete_order")
+    public String deletePurchaseOrder(@RequestParam("orderId")int orderId)
+    {
+        String status=inventoryService.deletePurchaseOrder(orderId);
+        return "Success";
+    
     }
     
     @PostMapping("/update_inventory")
