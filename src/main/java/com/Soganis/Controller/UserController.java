@@ -116,22 +116,11 @@ public class UserController {
         return ResponseEntity.ok(status);
 
     }
-    
-        @PostMapping("/stock/exchange")
-    public ResponseEntity<String> exchangeItems(@RequestBody List<ItemReturnModel> items)
-    {
-       
-            String status = itemService.stockExchange(items);
-        return ResponseEntity.ok(status);
 
-    }
-    
-    
-          @PostMapping("/stock/defect")
-    public ResponseEntity<String> exchangeItems(@RequestBody ItemReturnModel items)
-    {
-       
-            String status = itemService.stockDefectReturn(items);
+    @PostMapping("/stock/defect")
+    public ResponseEntity<String> exchangeItems(@RequestBody ItemReturnModel items) {
+
+        String status = itemService.stockDefectReturn(items);
         return ResponseEntity.ok(status);
 
     }
@@ -164,13 +153,13 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
     }
-    
-     @PostMapping("/exchange/billRequest")
+
+    @PostMapping("/exchange/billRequest")
     public ResponseEntity<byte[]> generate_bill_exchange(@RequestBody ItemExchangeModel itemModel) {
         try {
-            Billing bill=itemModel.getBill();
-            Billing createBill = itemService.saveBillExchange(bill,itemModel.getItemModel());
-            
+            Billing bill = itemModel.getBill();
+            Billing createBill = itemService.saveBillExchange(bill, itemModel.getItemModel());
+
             createBill.setBill(bill.getBill());
             byte[] pdfBytes = print_bill(createBill.getBillNo());
 
@@ -190,7 +179,6 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
     }
-    
 
 //    @PostMapping("/billRequest")
 //    public ResponseEntity<String> generateBill(@RequestBody Billing bill) {
@@ -648,5 +636,4 @@ public class UserController {
         }
     }
 
-    
 }
