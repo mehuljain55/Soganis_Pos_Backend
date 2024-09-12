@@ -9,7 +9,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "item")
-@SequenceGenerator(name = "item_sequence", sequenceName = "item_sequence", initialValue = 6500, allocationSize = 1)
+@SequenceGenerator(name = "item_sequence", sequenceName = "item_sequence", initialValue = 5245, allocationSize = 1)
 
 public class Items {
 

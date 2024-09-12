@@ -2,6 +2,7 @@ package com.Soganis.Controller;
 
 import com.Soganis.Entity.PurchaseOrderBook;
 import com.Soganis.Model.ItemAddModel;
+import com.Soganis.Model.ItemAddStockModel;
 import com.Soganis.Service.InventoryService;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -13,17 +14,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartFile;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
-import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -121,16 +116,43 @@ public class InventoryController {
         
     }
  
-       
+    
     @GetMapping("/inventory_format")
     public String inventoryFormat( ) throws IOException
     {
-        
     String status=inventoryService.generateInventoryExcel();
     return status;
-        
     }
     
+    
+     @PostMapping("/stock/add")
+    public String addItemStock(@RequestBody List<ItemAddStockModel> itemModel)
+    {
+      String status=inventoryService.addItemStock(itemModel);
+      return "Status";
+    }
+    
+    
+    @GetMapping("/search/school_list")
+    public List<String> school_list()
+    {
+      List<String> schoolList=inventoryService.school_list();
+      return schoolList;
+    }
+    
+    @GetMapping("/search/item_list")
+    public List<String> item_list()
+    {
+      List<String> itemList=inventoryService.item_list();
+      return itemList;
+    }
+    
+      @GetMapping("/check/item_code")
+    public String check_item_code(@RequestParam("itemCode")String itemCode)
+    {
+        String status=inventoryService.checkItemCode(itemCode);
+        return status;
+    }
     
     
     

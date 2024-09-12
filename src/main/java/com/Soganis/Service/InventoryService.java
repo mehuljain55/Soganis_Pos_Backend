@@ -4,8 +4,11 @@ import com.Soganis.Entity.BillingModel;
 import com.Soganis.Entity.Items;
 import com.Soganis.Entity.PurchaseOrderBook;
 import com.Soganis.Model.ItemAddModel;
+import com.Soganis.Model.ItemAddStockModel;
+import com.Soganis.Repository.ItemListRepository;
 import com.Soganis.Repository.ItemsRepository;
 import com.Soganis.Repository.PurchaseOrderBookRepo;
+import com.Soganis.Repository.SchoolRepository;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Date;
@@ -32,6 +35,12 @@ public class InventoryService {
 
     @Autowired
     private PurchaseOrderBookRepo purchaseOrderRepo;
+    
+    @Autowired
+    private SchoolRepository schoolRepo;
+    
+    @Autowired
+    private ItemListRepository itemListRepo;
 
     public String updateInventory(BillingModel billing) {
 
@@ -145,7 +154,84 @@ public class InventoryService {
       }
       return "Success";
     }
+    
+    public String addItemStock(List<ItemAddStockModel> itemList)
+    {
+        try{
+         for(ItemAddStockModel itemModel:itemList)
+         {
+            Items itemAddModel=new Items();
+            Items item=itemRepo.save(itemAddModel);
+            String barcodeId=generateBarcode(item.getSno());
+            item.setItemBarcodeID(barcodeId);
+            item.setItemCode(itemModel.getItemCode());
+            item.setItemName(itemModel.getItemName());
+            item.setItemCategory(itemModel.getItemCategory());
+            item.setItemColor(itemModel.getItemColor());
+            item.setItemSize(itemModel.getItemSize());
+            item.setItemType(itemModel.getItemType());
+            item.setPrice(itemModel.getPrice());
+            item.setWholeSalePrice(itemModel.getWholeSalePrice());
+            String schoolCode=schoolRepo.findSchoolCodeBySchoolName(item.getItemCategory());
+            String itemTypeCode=itemListRepo.findItemTypeCodeByDescription(item.getItemType());
+            item.setQuantity(itemModel.getQuantity());
+            item.setDescription(itemModel.getDescription());
+            item.setSchoolCode(schoolCode);
+            item.setItemTypeCode(itemTypeCode);
+            itemRepo.save(item);  
+         }
+       
    
+         return "Success";
+        }catch(Exception e)
+        {
+         e.printStackTrace();
+         return "Failed";
+        }
+        }
+   
+    
+    public List<String> school_list()
+    {
+        List<String> school_list=schoolRepo.findSchoolList();
+        return school_list;
+    }
+    
+       public List<String> item_list()
+    {
+        List<String> item_list=itemListRepo.findItemType();
+        return item_list;
+    }
+    
+      public String generateBarcode(int id) {
+
+        String prefix = "SG";
+        String idStr = String.format("%09d", id);
+        String barcodeId = prefix + idStr;
+
+        return barcodeId;
+    }
+      
+      public String checkItemCode(String itemCode)
+      {
+        List<Items> items=itemRepo.checkItemCodeForNewItem(itemCode);
+        
+        if(items==null)
+        {
+          return "New";
+        }else if(items.size()==0)
+        { 
+            return "New";
+        }else{
+          return "Exists";
+        }
+        
+        
+        
+      }
+
+  
+    
     
 //   public String generateInventoryExcel() throws IOException {
 //    // Create a new workbook and sheet
@@ -305,6 +391,8 @@ public class InventoryService {
 private boolean isNumeric(String str) {
     return str != null && str.matches("\\d+");
 }
+
+
 
 
     

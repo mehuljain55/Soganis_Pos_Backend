@@ -59,5 +59,8 @@ public interface ItemsRepository extends JpaRepository<Items, Integer> {
     List<Items> findItemsBySchoolAndType(@Param("itemCategory") String itemCategory,
                                          @Param("itemType") String itemType);
     
+    
+    @Query("SELECT i FROM Items i WHERE i.itemCode = :itemCode")
+    List<Items> checkItemCodeForNewItem(@Param("itemCode") String itemCode);
 
 }
