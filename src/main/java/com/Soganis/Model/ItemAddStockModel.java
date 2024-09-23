@@ -14,6 +14,7 @@ public class ItemAddStockModel {
    private String wholeSalePrice;
    private int quantity;
    private String description;
+   private String groupId;
 
     public String getItemCode() {
         return itemCode;
@@ -96,9 +97,13 @@ public class ItemAddStockModel {
     public void setDescription(String description) {
         this.description = description;
     }
-    
-    
-   
-   
+
+    public String getGroupId() {
+        return groupId;
+    }
+
+    public void setGroupId(String groupId) {
+        this.groupId = groupId;
+    }
     
 }

@@ -178,6 +178,19 @@ public class InventoryService {
             item.setDescription(itemModel.getDescription());
             item.setSchoolCode(schoolCode);
             item.setItemTypeCode(itemTypeCode);
+            if(itemModel.getGroupId()==null)
+            {
+                item.setGroup_id("NA");
+            }
+            else if(itemModel.getGroupId().equals(""))
+            {
+                System.out.println("Group Id");
+             item.setGroup_id("NA");
+            }
+            else{
+                String groupId=itemModel.getGroupId()+item.getItemSize();
+                item.setGroup_id(groupId);
+             }
             itemRepo.save(item);  
          }
        

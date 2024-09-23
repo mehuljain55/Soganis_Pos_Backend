@@ -23,6 +23,9 @@ public class UserCashCollection {
 
     private String userName;
     private int cash_collection;
+    private int cash_return;
+    private int final_cash_collection;
+    
 
     // Default constructor
     public UserCashCollection() {}
@@ -68,4 +71,22 @@ public class UserCashCollection {
     public void setCash_collection(int cash_collection) {
         this.cash_collection = cash_collection;
     }
+
+    public int getCash_return() {
+        return cash_return;
+    }
+
+    public void setCash_return(int cash_return) {
+        this.cash_return = cash_return;
+    }
+
+    public int getFinal_cash_collection() {
+        return final_cash_collection;
+    }
+
+    public void setFinal_cash_collection(int final_cash_collection) {
+        this.final_cash_collection = final_cash_collection;
+    }
+    
+    
 }

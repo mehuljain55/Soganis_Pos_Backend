@@ -166,11 +166,23 @@ public class UserService {
 
             int user_cash_collected = bills.stream()
                     .mapToInt(Billing::getFinal_amount)
+                    .filter(amount -> amount > 0)
                     .sum();
+            
+            int user_cash_returned = bills.stream()
+                    .mapToInt(Billing::getFinal_amount)
+                    .filter(amount -> amount < 0)
+                    .sum();
+            
+            user_cash_returned=user_cash_returned*-1;
+            int total=user_cash_collected-user_cash_returned;
+            
             user_cash_collection.setUserId(user.getUserId());
             user_cash_collection.setCollection_date(new Date());
             user_cash_collection.setUserName(user.getSname());
             user_cash_collection.setCash_collection(user_cash_collected);
+            user_cash_collection.setCash_return(user_cash_returned);
+            user_cash_collection.setFinal_cash_collection(total);
             userCashList.add(user_cash_collection);
 
         }
@@ -179,6 +191,44 @@ public class UserService {
 
     }
 
+    
+    public String updateUserCashCollectionReport() {
+        List<User> users = userRepo.findAll();
+        List<UserCashCollection> userCashList = new ArrayList<>();
+        for (User user : users) {
+            UserCashCollection user_cash_collection = new UserCashCollection();
+            List<Billing> bills = billRepo.findByUserIdAndBillDate(user.getUserId(), new Date());
+
+            int user_cash_collected = bills.stream()
+                    .mapToInt(Billing::getFinal_amount)
+                    .filter(amount -> amount > 0)
+                    .sum();
+            
+            int user_cash_returned = bills.stream()
+                    .mapToInt(Billing::getFinal_amount)
+                    .filter(amount -> amount < 0)
+                    .sum();
+            
+            user_cash_returned=user_cash_returned*-1;
+            int total=user_cash_collected-user_cash_returned;
+            
+            user_cash_collection.setUserId(user.getUserId());
+            user_cash_collection.setCollection_date(new Date());
+            user_cash_collection.setUserName(user.getSname());
+            user_cash_collection.setCash_collection(user_cash_collected);
+            user_cash_collection.setCash_return(user_cash_returned);
+            user_cash_collection.setFinal_cash_collection(total);
+            userCashList.add(user_cash_collection);
+
+        }
+        userCashCollectionRepo.saveAll(userCashList);
+        return "Success";
+
+    }
+
+    
+    
+    
     public List<UserMonthlySalary> generateUserMonthlySalaries(String month_fy) {
         List<UserMonthlySalary> salaries = new ArrayList<>();
         List<User_Salary> salary_statement;

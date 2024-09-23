@@ -35,7 +35,7 @@ public class InventoryController {
     public ResponseEntity<InputStreamResource> generateOrder(@RequestBody List<PurchaseOrderBook> orders) {
         try {
             String status = inventoryService.updateOrder(orders);
-    Workbook workbook = new XSSFWorkbook();
+            Workbook workbook = new XSSFWorkbook();
             Sheet sheet = workbook.createSheet("Orders");
 
             // Create a bold font for header

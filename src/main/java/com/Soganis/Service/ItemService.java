@@ -192,7 +192,7 @@ public class ItemService {
     public int getTodaysCollectionByUser(String userId, Date date) {
         List<Billing> bills = billRepo.findByUserIdAndBillDate(userId, date);
         int cash_collection = 0;
-
+     
         for (Billing bill : bills) {
             cash_collection = cash_collection + bill.getFinal_amount();
         }

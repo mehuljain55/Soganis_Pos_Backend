@@ -102,6 +102,7 @@ public class UserController {
     public ResponseEntity<String> stockReturn(@RequestBody List<ItemReturnModel> items) {
 
         String status = itemService.stockReturn(items);
+        String updateCollectionReport=service.updateUserCashCollectionReport();
         return ResponseEntity.ok(status);
 
     }
@@ -110,6 +111,7 @@ public class UserController {
     public ResponseEntity<String> exchangeItems(@RequestBody ItemReturnModel items) {
 
         String status = itemService.stockDefectReturn(items);
+        
         return ResponseEntity.ok(status);
 
     }
@@ -124,6 +126,8 @@ public class UserController {
         try {
             Billing createBill = itemService.saveBilling(bill);
             createBill.setBill(bill.getBill());
+            String status=service.updateUserCashCollectionReport();
+        
             byte[] pdfBytes = print_bill(createBill.getBillNo());
 
             if (pdfBytes != null) {
@@ -150,6 +154,7 @@ public class UserController {
             Billing createBill = itemService.saveBillExchange(bill, itemModel.getItemModel());
 
             createBill.setBill(bill.getBill());
+            String status=service.updateUserCashCollectionReport();
             byte[] pdfBytes = print_bill(createBill.getBillNo());
 
             if (pdfBytes != null) {
@@ -169,25 +174,13 @@ public class UserController {
         }
     }
 
-//    @PostMapping("/billRequest")
-//    public ResponseEntity<String> generateBill(@RequestBody Billing bill) {
-//        try {
-//            Billing createBill = itemService.saveBilling(bill);
-//            createBill.setBill(bill.getBill());
-//            String destination = print_bill(createBill.getBillNo());
-//            System.out.println(destination);
-//            return ResponseEntity.ok(destination);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-//        }
-//    }
     @PostMapping("/intercompany/billRequest")
     public ResponseEntity<byte[]> generateInterCompanyBill(@RequestBody Billing bill) {
         try {
             Billing createBill = itemService.saveInterCompanyBilling(bill);
             createBill.setBill(bill.getBill());
             byte[] pdfBytes = print_bill(createBill.getBillNo());
+            String status=service.updateUserCashCollectionReport();
 
             if (pdfBytes != null) {
                 HttpHeaders headers = new HttpHeaders();
@@ -206,19 +199,6 @@ public class UserController {
         }
     }
 
-//     @PostMapping("/intercompany/billRequest")
-//    public ResponseEntity<Billing> generateInterCompanyBill(@RequestBody Billing bill) {
-//        try {
-//            Billing createBill = itemService.saveInterCompanyBilling(bill);
-//            createBill.setBill(bill.getBill());
-//            String status = print_bill(createBill.getBillNo());
-//            System.out.println(status);
-//            return ResponseEntity.ok(createBill);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-//        }
-//    }
     @GetMapping("/getTodayUserCashCollection")
     public ResponseEntity<Integer> getTodayUserCashCollection(@RequestParam("userId") String userId) {
 
@@ -546,47 +526,6 @@ public class UserController {
         }
     }
 
-//    public String print_bill(int bill_no) {
-//        Billing bill = itemService.getBill(bill_no);
-//
-//        List<BillingModel> bills = bill.getBill();
-//        List<BillingModel> newBill = new ArrayList<>();
-//        int count = 1;
-//        for (BillingModel billModel : bills) {
-//            String desciption = billModel.getItemCategory() + " " + billModel.getItemType() + " " + billModel.getItemColor();
-//            billModel.setDescription(desciption);
-//            billModel.setSno(count);
-//            newBill.add(billModel);
-//            count = count + 1;
-//        }
-//        System.out.println(newBill.size());
-//
-//        try {
-//
-//            InputStream reportTemplate = UserController.class.getResourceAsStream("/static/Test.jrxml");
-//            JasperReport jasperReport = JasperCompileManager.compileReport(reportTemplate);
-//            Map<String, Object> parameters = new HashMap<>();
-//            SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-//            String bill_date = dateFormat.format(bill.getBill_date());
-//            parameters.put("bill_no", bill.getBillNo());
-//            parameters.put("customer_name", bill.getCustomerName());
-//            parameters.put("mobile_no", bill.getCustomerMobileNo());
-//            parameters.put("date", bill_date);
-//            parameters.put("final_amount", bill.getFinal_amount());
-//
-//            JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(newBill);
-//            JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, parameters, dataSource);
-//            String destination = "C:\\Users\\mehul\\Desktop\\Invoice\\" + bill.getCustomerName() + "_" + bill.getBillNo() + ".pdf";
-//            JasperExportManager.exportReportToPdfFile(jasperPrint, destination);
-//          //  printPDFViaChrome(destination);
-//            return destination;
-//            
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return "Failed";
-//        }
-//
-//    }
     @GetMapping("/search/item_code")
     public ResponseEntity<Items> item_list_code(@RequestParam("barcode") String barcode) {
 
