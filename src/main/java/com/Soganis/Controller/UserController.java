@@ -503,7 +503,7 @@ public class UserController {
         }
 
         try {
-            InputStream reportTemplate = UserController.class.getResourceAsStream("/static/Test.jrxml");
+            InputStream reportTemplate = UserController.class.getResourceAsStream("/static/Test_A5.jrxml");
             JasperReport jasperReport = JasperCompileManager.compileReport(reportTemplate);
             Map<String, Object> parameters = new HashMap<>();
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
