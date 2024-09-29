@@ -353,9 +353,10 @@ public class InventoryService {
             Sheet sheet = workbook.getSheetAt(0); // Assuming the first sheet
 
             // Find the total number of rows and columns
-            int totalRows = sheet.getPhysicalNumberOfRows();
+         
             Row firstRow = sheet.getRow(0);
             int totalColumns = firstRow.getPhysicalNumberOfCells();
+            int totalRows = sheet.getPhysicalNumberOfRows();
 
             // Row 1 contains school codes, row 2 contains item codes, row 3 contains colors
             Row schoolCodeRow = sheet.getRow(0); // School codes (B1, C1, D1...)

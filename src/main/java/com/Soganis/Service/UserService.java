@@ -379,10 +379,5 @@ public class UserService {
         return lst;
 
     }
-     
-     
-     
-   
-    
 
 }
