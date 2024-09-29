@@ -3,12 +3,16 @@ package com.Soganis.Service;
 import com.Soganis.Entity.BillingModel;
 import com.Soganis.Entity.Items;
 import com.Soganis.Entity.PurchaseOrderBook;
+import com.Soganis.Model.ItemAddInventoryModel;
 import com.Soganis.Model.ItemAddModel;
 import com.Soganis.Model.ItemAddStockModel;
+import com.Soganis.Model.ItemModel;
 import com.Soganis.Repository.ItemListRepository;
 import com.Soganis.Repository.ItemsRepository;
 import com.Soganis.Repository.PurchaseOrderBookRepo;
 import com.Soganis.Repository.SchoolRepository;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Date;
@@ -22,10 +26,14 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class InventoryService {
@@ -246,151 +254,147 @@ public class InventoryService {
   
     
     
-//   public String generateInventoryExcel() throws IOException {
-//    // Create a new workbook and sheet
-//    
-//    
-//    List<String> itemList=itemRepo.findDistinctItemTypes();
-//    
-//    for(String item:itemList)
-//    {
-//    
-//    Workbook workbook = new XSSFWorkbook();
-//    Sheet sheet = workbook.createSheet(item);
-//
-//    String item_code=itemRepo.findDistinctItemTypeCode(item);
-//    
-//
-//    
-//    
-//    // Set headings
-//    Row row1 = sheet.createRow(0); // Row 1
-//    Cell itemCodeHeader = row1.createCell(0); // A1
-//    itemCodeHeader.setCellValue("Item Code");
-//
-//    Row row2 = sheet.createRow(1); // Row 2
-//    Cell schoolCodeHeader = row2.createCell(0); // A2
-//    schoolCodeHeader.setCellValue("School Code");
-//
-//    // Fetch distinct item sizes and school codes for "Full Pant"
-//    List<String> itemSizes = itemRepo.findDistinctItemSizeByItemType(item);
-//    List<String> schoolCodes = itemRepo.findDistinctSchoolCodeByItemType(item);
-//
-//    // Populate item sizes in column A starting from A3
-//    int rowIndex = 2; // Start filling sizes from row 3 (A3)
-//    for (String size : itemSizes) {
-//        Row sizeRow = sheet.getRow(rowIndex);
-//        if (sizeRow == null) {
-//            sizeRow = sheet.createRow(rowIndex);
-//        }
-//        Cell sizeCell = sizeRow.createCell(0); // Column A
-//        sizeCell.setCellValue(size);
-//        rowIndex++;
-//    }
-//
-//    // Populate school codes in row 2 starting from B2
-//    int currentColIndex = 1; // Start filling school codes from column B
-//    for (String school : schoolCodes) {
-//        Cell schoolCodeCell = row2.createCell(currentColIndex); // Row 2
-//        schoolCodeCell.setCellValue(school);
-//        currentColIndex++;
-//    }
-//
-//    // Populate "FP" in row 1 (starting from A2 to the last school code column)
-//    for (int i = 1; i < currentColIndex; i++) { // Starting from column B (index 1)
-//        Cell fpCell = row1.createCell(i); // Row 1
-//        fpCell.setCellValue(item_code);
-//    }
-//
-//    // Resize columns to fit the content
-//    for (int i = 0; i < sheet.getRow(1).getLastCellNum(); i++) {
-//        sheet.autoSizeColumn(i);
-//    }
-//
-//    // Write the workbook to file
-//    try (FileOutputStream fileOut = new FileOutputStream("C:\\Users\\mehul\\Desktop\\Invoice\\"+item+".xlsx")) {
-//        workbook.write(fileOut);
-//    }
-//
-//    // Closing the workbook
-//    workbook.close();
-//    }
-//    return "Success";
-//}
-    
-    
     public String generateInventoryExcel() throws IOException {
-    // Create a new workbook
-    Workbook workbook = new XSSFWorkbook();
+   
+        
+     List<String> itemList = itemRepo.findDistinctItemTypes();
 
-    // Fetch distinct item types
-    List<String> itemList = itemRepo.findDistinctItemTypes();
-
-    // Loop through each item type to create individual sheets
     for (String item : itemList) {
-        // Create a new sheet for each item
-        Sheet sheet = workbook.createSheet(item);
-
-        // Fetch the item code for the item type
         String item_code = itemRepo.findDistinctItemTypeCode(item);
 
-        // Set headings
-        Row row1 = sheet.createRow(0); // Row 1
-        Cell itemCodeHeader = row1.createCell(0); // A1
-        itemCodeHeader.setCellValue("Item Code");
-
-        Row row2 = sheet.createRow(1); // Row 2
-        Cell schoolCodeHeader = row2.createCell(0); // A2
-        schoolCodeHeader.setCellValue("School Code");
-
-        // Fetch distinct item sizes and school codes for the item type
         List<String> itemSizes = getSortedItemSizes(itemRepo.findDistinctItemSizeByItemType(item));
+        List<String> itemCategory= getSortedItemCategory(itemRepo.findDistinctSchoolByType(item));
+        List<ItemAddInventoryModel> itemAddList=new ArrayList<>();
         
-        
-        List<String> schoolCodes = itemRepo.findDistinctSchoolCodeByItemType(item);
-
-        // Populate item sizes in column A starting from A3
-        int rowIndex = 2; // Start filling sizes from row 3 (A3)
-        for (String size : itemSizes) {
-            Row sizeRow = sheet.getRow(rowIndex);
-            if (sizeRow == null) {
-                sizeRow = sheet.createRow(rowIndex);
+        for(String school:itemCategory)
+        {
+           List<String> itemColorList=itemRepo.findDistinctItemColor(school, item);
+            for(String itemColor:itemColorList)
+            {
+               String schoolCode=itemRepo.findDistinctSchoolCode(school);
+              ItemAddInventoryModel itemModel=new ItemAddInventoryModel(schoolCode,item,itemColor);
+              itemAddList.add(itemModel);
             }
-            Cell sizeCell = sizeRow.createCell(0); // Column A
-            sizeCell.setCellValue(size);
-            rowIndex++;
+            
         }
+        
+        exportExcelInventoryFormat(item,itemAddList,itemSizes);
 
-        // Populate school codes in row 2 starting from B2
-        int currentColIndex = 1; // Start filling school codes from column B
-        for (String school : schoolCodes) {
-            Cell schoolCodeCell = row2.createCell(currentColIndex); // Row 2
-            schoolCodeCell.setCellValue(school);
-            currentColIndex++;
-        }
-
-        // Populate the item code in row 1 (starting from A2 to the last school code column)
-        for (int i = 1; i < currentColIndex; i++) { // Starting from column B (index 1)
-            Cell fpCell = row1.createCell(i); // Row 1
-            fpCell.setCellValue(item_code);
-        }
-
-        // Resize columns to fit the content
-        for (int i = 0; i < sheet.getRow(1).getLastCellNum(); i++) {
-            sheet.autoSizeColumn(i);
-        }
     }
-
-    // Write the workbook to a file
-    try (FileOutputStream fileOut = new FileOutputStream("C:\\Users\\mehul\\Desktop\\Invoice\\Inventory.xlsx")) {
-        workbook.write(fileOut);
-    }
-
-    // Close the workbook
-    workbook.close();
-
     return "Success";
 }
+    
+    
+    
+    
+    public String exportExcelInventoryFormat(String itemType, List<ItemAddInventoryModel> itemList, List<String> itemSize) {
+        String filePath = "C:\\Users\\mehul\\Desktop\\New folder\\" + itemType + ".xlsx";
+
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Inventory");
+
+        // Ensure rows for headers and data are created
+        Row schoolRow = sheet.createRow(0);
+        Row itemCodeRow = sheet.createRow(1);
+        Row colorRow = sheet.createRow(2);
+
+        // Header row (A1, A2, A3)
+        schoolRow.createCell(0).setCellValue("School");
+        itemCodeRow.createCell(0).setCellValue("Item Code");
+        colorRow.createCell(0).setCellValue("Color");
+
+        // Populate item data in Columns (B, C, D...)
+        for (int i = 0; i < itemList.size(); i++) {
+            ItemAddInventoryModel item = itemList.get(i);
+
+            // Write School Code, Item Code, and Color into the columns starting from B
+            schoolRow.createCell(i + 1).setCellValue(item.getSchoolCode());
+            itemCodeRow.createCell(i + 1).setCellValue(item.getItemCode());
+            colorRow.createCell(i + 1).setCellValue(item.getItemColor());
+        }
+
+        // Populate item sizes starting from A4, A5, A6...
+        for (int i = 0; i < itemSize.size(); i++) {
+            Row sizeRow = sheet.createRow(i + 3);  // Start from row 4 (0-indexed, so i+3)
+            sizeRow.createCell(0).setCellValue(itemSize.get(i)); // Sizes in A4, A5, A6...
+        }
+
+        // Auto-size columns after writing the data
+        for (int i = 0; i <= itemList.size(); i++) {
+            sheet.autoSizeColumn(i);
+        }
+
+        // Check if directory exists
+        File directory = new File(filePath).getParentFile();
+        if (!directory.exists()) {
+            if (!directory.mkdirs()) {
+                return "Failed to create directory: " + directory.getAbsolutePath();
+            }
+        }
+
+        // Write the output to the file
+        try (FileOutputStream fileOut = new FileOutputStream(filePath)) {
+            workbook.write(fileOut);
+            workbook.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "Error during export: " + e.getMessage();
+        }
+
+        return "Excel exported successfully to " + filePath;
+    }
+    
+    
+    
+    public List<ItemModel> inventory_quantity_update(MultipartFile file) throws IOException {
+        List<ItemModel> itemList = new ArrayList<>();
+
+        try (Workbook workbook = new XSSFWorkbook(file.getInputStream())) {
+            Sheet sheet = workbook.getSheetAt(0); // Assuming the first sheet
+
+            // Find the total number of rows and columns
+            int totalRows = sheet.getPhysicalNumberOfRows();
+            Row firstRow = sheet.getRow(0);
+            int totalColumns = firstRow.getPhysicalNumberOfCells();
+
+            // Row 1 contains school codes, row 2 contains item codes, row 3 contains colors
+            Row schoolCodeRow = sheet.getRow(0); // School codes (B1, C1, D1...)
+            Row itemCodeRow = sheet.getRow(1);   // Item codes (B2, C2, D2...)
+            Row colorRow = sheet.getRow(2);      // Colors (B3, C3, D3...)
+
+            // Loop through columns starting from the second column (B, C, D...)
+            for (int col = 1; col < totalColumns; col++) {
+                String schoolCode = schoolCodeRow.getCell(col).getStringCellValue();
+                String itemCode = itemCodeRow.getCell(col).getStringCellValue();
+                String color = colorRow.getCell(col).getStringCellValue();
+
+                // Loop through each row from Row 4 onwards (A4...An for sizes, B4...Bn for quantities)
+                for (int rowIdx = 3; rowIdx < totalRows; rowIdx++) {
+                    Row currentRow = sheet.getRow(rowIdx);
+                    if (currentRow == null) continue;
+
+                    // Column A contains sizes
+                    Cell sizeCell = currentRow.getCell(0);
+                    if (sizeCell == null || sizeCell.getCellType() != CellType.STRING) continue;
+                    String size = sizeCell.getStringCellValue();
+
+                    // Column col (B, C, D...) contains quantities
+                    Cell quantityCell = currentRow.getCell(col);
+                    if (quantityCell != null && quantityCell.getCellType() == CellType.NUMERIC) {
+                        int quantity = (int) quantityCell.getNumericCellValue();
+
+                        // Create ItemModel and map the data
+                        ItemModel item = new ItemModel(schoolCode, itemCode, size, color);
+                        item.setQuantity(quantity);
+                        itemList.add(item);
+                    }
+                }
+            }
+        }
+
+        return itemList;
+    }
+    
     
     public List<String> getSortedItemSizes(List<String> itemSizes) {
     return itemSizes.stream()
@@ -400,6 +404,13 @@ public class InventoryService {
         .collect(Collectors.toList());
 }
 
+      public List<String> getSortedItemCategory(List<String> itemCategory) {
+        // Sort the list alphabetically
+        Collections.sort(itemCategory);
+        return itemCategory;
+    }
+    
+    
 // Helper method to check if a string is numeric
 private boolean isNumeric(String str) {
     return str != null && str.matches("\\d+");

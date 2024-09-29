@@ -3,6 +3,7 @@ package com.Soganis.Controller;
 import com.Soganis.Entity.PurchaseOrderBook;
 import com.Soganis.Model.ItemAddModel;
 import com.Soganis.Model.ItemAddStockModel;
+import com.Soganis.Model.ItemModel;
 import com.Soganis.Service.InventoryService;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -22,6 +23,7 @@ import java.util.Random;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 
 
@@ -122,6 +124,25 @@ public class InventoryController {
     {
     String status=inventoryService.generateInventoryExcel();
     return status;
+    }
+    
+    
+    
+      @PostMapping("/inventory/add")
+   public ResponseEntity<List<ItemModel>> uploadExcelFile(@RequestParam("file") MultipartFile file) {
+        if (file.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+        try {
+            // Call service to read the Excel file and return list of ItemModel
+            List<ItemModel> items = inventoryService.inventory_quantity_update(file);
+
+            return new ResponseEntity<>(items, HttpStatus.OK);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
     
     

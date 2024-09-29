@@ -35,10 +35,14 @@ public interface ItemsRepository extends JpaRepository<Items, Integer> {
 
     @Query("SELECT DISTINCT i.itemSize FROM Items i WHERE i.itemType = :itemType ORDER BY i.itemSize ASC")
     List<String> findDistinctItemSizeByItemType(@Param("itemType") String itemType);
+    
+    
+    
 
     @Query("SELECT DISTINCT i.itemTypeCode FROM Items i WHERE i.itemType = :itemType")
     String findDistinctItemTypeCode(@Param("itemType") String itemType);
-
+    
+    
     
     
     @Query("SELECT DISTINCT i.schoolCode FROM Items i WHERE i.itemType = :itemType")
@@ -48,12 +52,23 @@ public interface ItemsRepository extends JpaRepository<Items, Integer> {
     
     @Query("SELECT DISTINCT i.itemType FROM Items i where i.itemCategory=:itemCategory")
     List<String> findDistinctItemTypesByScool(@Param("itemCategory") String itemCategory);
+    
+    @Query("SELECT DISTINCT i.itemCategory FROM Items i where i.itemType=:itemType")
+    List<String> findDistinctSchoolByType(@Param("itemType") String itemType);
+    
+      @Query("SELECT  DISTINCT i.itemColor  FROM Items i where i.itemCategory = :itemCategory and i.itemType=:itemType")
+    List<String> findDistinctItemColor(@Param("itemCategory") String itemCategory,
+                                         @Param("itemType") String itemType);
+    
 
     @Query("SELECT i FROM Items i WHERE i.itemCategory = :itemCategory ORDER BY i.itemType ASC,i.itemColor ASC, i.itemSize ASC")
     List<Items> findItemsBySchool(@Param("itemCategory") String itemCategory);
 
     @Query("SELECT i FROM Items i WHERE i.itemType = :itemType ORDER BY i.itemCategory ASC,i.itemColor ASC, i.itemSize ASC")
     List<Items> findItemsByItemType(@Param("itemType") String itemType);
+    
+      @Query("SELECT DISTINCT i.schoolCode FROM Items i where i.itemCategory=:itemCategory")
+      String findDistinctSchoolCode(@Param("itemCategory") String itemCategory);
     
     @Query("SELECT i FROM Items i WHERE i.itemCategory = :itemCategory and i.itemType=:itemType")
     List<Items> findItemsBySchoolAndType(@Param("itemCategory") String itemCategory,
